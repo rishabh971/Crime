@@ -9,7 +9,7 @@ import screens from '../../utils/screens';
 
 export const SplashScreen = () => {
   React.useEffect(() => {
-    setTimeout(() => navigate(screens.LOGIN), 1000);
+    setTimeout(() => navigate(screens.LANDING), 1000);
   }, []);
 
   return (

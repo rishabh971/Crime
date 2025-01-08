@@ -1,7 +1,20 @@
+import {TextStyle, ViewStyle} from 'react-native';
 import {TextWrapper} from '../textWrapper';
 import {ViewWrapper} from '../viewWrapper';
 
-const PrimaryButton = ({onPress, disable, title, customStyle}) => {
+const PrimaryButton = ({
+  onPress,
+  disable,
+  title,
+  customStyle,
+  titleStyle,
+}: {
+  onPress: () => void;
+  disable: boolean;
+  title: string;
+  customStyle: ViewStyle;
+  titleStyle: TextStyle;
+}) => {
   return (
     <ViewWrapper
       self
@@ -18,7 +31,7 @@ const PrimaryButton = ({onPress, disable, title, customStyle}) => {
         },
         customStyle,
       ]}>
-      <TextWrapper h22 title={title} align />
+      <TextWrapper h22 title={title} align style={titleStyle} />
     </ViewWrapper>
   );
 };

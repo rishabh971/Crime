@@ -1,7 +1,8 @@
 const fixedPath = '../asset/';
 
 export const images = {
-    IB: require(`${fixedPath}images/splash.png`),
+  IB: require(`${fixedPath}images/splash.png`),
   APPLOGO: require(`${fixedPath}images/vedicon.png`),
   MATRIX: require(`${fixedPath}images/matrix.png`),
+  LOGO: require(`${fixedPath}images/logo.png`),
 };
