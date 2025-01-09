@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {LandingScreen} from '../screens/landing';
 import {LoginScreen} from '../screens/login';
 import {RegistrationScreen} from '../screens/registration';
+import BottomStack from './bottomStack';
 
 const RootStack = createNativeStackNavigator();
 
@@ -34,6 +35,11 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={screens.REGISTRATION}
         component={RegistrationScreen}
+        options={{navigationBarHidden: true}}
+      />
+      <RootStack.Screen
+        name={screens.BOTTOMSTACK}
+        component={BottomStack}
         options={{navigationBarHidden: true}}
       />
     </RootStack.Navigator>

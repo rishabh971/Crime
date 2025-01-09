@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {Alert, Image} from 'react-native';
 import {images} from '../../asset';
 import CustomTextInput from '../../components/customTextInput';
 import {ViewWrapper} from '../../components/viewWrapper';
@@ -95,7 +95,9 @@ export const LoginScreen = () => {
         }}
         titleStyle={{color: '#fff'}}
         disable={false}
-        onPress={() => {}}
+        onPress={() => {
+          navigate(screens.BOTTOMSTACK)
+        }}
       />
       <ViewWrapper row center justifyCenter customStyle={{marginVertical: 15}}>
         <TextWrapper
