@@ -1,6 +1,6 @@
 import React from 'react';
 import {TextInput, StyleSheet, Image} from 'react-native';
-import { ViewWrapper } from '../viewWrapper';
+import {ViewWrapper} from '../viewWrapper';
 import colors from '../../utils/colors';
 
 const CustomTextInput = ({
@@ -10,11 +10,20 @@ const CustomTextInput = ({
   placeholder,
   containerStyle,
   tstyle,
+  iconNameStyle,
+  iconContainerStyle,
   ...props
 }) => {
   return (
     <ViewWrapper style={[styles.container, containerStyle]}>
-      <Image source={iconName} style={styles.icon} />
+      {iconName && (
+        <ViewWrapper
+          center
+          justifyCenter
+          customStyle={[styles.icon, iconContainerStyle]}>
+          <Image source={iconName} style={[iconNameStyle]} />
+        </ViewWrapper>
+      )}
       <TextInput
         style={[styles.textInput, tstyle]}
         placeholder={placeholder}
@@ -32,12 +41,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     paddingVertical: 5,
     backgroundColor: '#fff',
   },
   icon: {
-    marginRight: 10,
+    position: 'absolute',
+    top: 15,
+    left: 10,
+    zIndex: 1,
+    borderRadius: 10,
+    height: 46,
+    width: 46,
   },
   textInput: {
     backgroundColor: '#fff',

@@ -1,4 +1,4 @@
-import {TextStyle, ViewStyle} from 'react-native';
+import {Image, ImageProps, TextStyle, ViewStyle} from 'react-native';
 import {TextWrapper} from '../textWrapper';
 import {ViewWrapper} from '../viewWrapper';
 
@@ -8,12 +8,14 @@ const PrimaryButton = ({
   title,
   customStyle,
   titleStyle,
+  icon,
 }: {
   onPress: () => void;
   disable: boolean;
   title: string;
   customStyle: ViewStyle;
   titleStyle: TextStyle;
+  icon: ImageProps;
 }) => {
   return (
     <ViewWrapper
@@ -28,10 +30,22 @@ const PrimaryButton = ({
           width: '90%',
           borderRadius: 50,
           height: 75,
+          overflow: 'hidden',
         },
         customStyle,
       ]}>
-      <TextWrapper h22 title={title} align style={titleStyle} />
+      {!icon ? (
+        <TextWrapper h22 title={title} align style={titleStyle} />
+      ) : (
+        <Image
+          source={typeof icon == 'string' ? {uri: icon} : icon}
+          style={
+            typeof icon == 'string'
+              ? {height: '100%', width: '100%'}
+              : {resizeMode: 'contain'}
+          }
+        />
+      )}
     </ViewWrapper>
   );
 };

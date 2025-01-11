@@ -6,8 +6,14 @@ import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {TextWrapper} from '../../components/textWrapper';
-import {navigate} from '../../utils/navigationService';
+import {goBack, navigate} from '../../utils/navigationService';
 import screens from '../../utils/screens';
+import {ImageUploadButton} from '../../components/imageUpload';
+import {CustomHeader} from '../../components/customHeader';
+import CustomModalWrapper from '../../components/customModalWrapper';
+import {normalize} from '../../utils/dimensions';
+import {galleryPick, OpenCamera} from '../../utils/imageHandler';
+import {images} from '../../asset';
 
 export const RegistrationScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -21,6 +27,41 @@ export const RegistrationScreen = () => {
     fsl: '',
     emailid: '',
   });
+
+  const [open, setOpen] = React.useState(false);
+  const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
+
+  const openCameraOrGallery = () => {
+    setOpen(prev => !prev);
+  };
+
+  const onCloseModal = () => {
+    setOpen(false);
+  };
+
+  const camera = async () => {
+    try {
+      const res = await OpenCamera();
+      res?.path && setImagePath(res);
+      setOpen(false);
+    } catch (error) {
+      setOpen(false);
+    }
+  };
+
+  const gallery = async () => {
+    try {
+      await galleryPick(
+        (res: any) => {
+          res?.path && setImagePath(res);
+          setOpen(false);
+        },
+        () => {
+          setOpen(false);
+        },
+      );
+    } catch (error) {}
+  };
 
   const renderItem = (item: {
     placeholder: string;
@@ -101,58 +142,95 @@ export const RegistrationScreen = () => {
     );
   };
 
+  const goBackToAnotherScreen = () => {
+    goBack();
+  };
+
   return (
-    <KeyboardAwareScrollView
-      bounces={false}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{paddingBottom: 20}}
-      style={{backgroundColor: '#F9FAFE'}}>
-      <ViewWrapper
-        customStyle={{
-          flex: 1,
-          paddingTop: top,
-          backgroundColor: '#F9FAFE',
-          paddingHorizontal: 30,
-        }}>
-        {renderFields()}
-        <PrimaryButton
-          title="Submit"
-          titleStyle={{color: '#fff'}}
+    <ViewWrapper customStyle={{flex: 1, backgroundColor: '#F9FAFE'}}>
+      <CustomHeader
+        screenName="Registration"
+        onLeftIconPress={goBackToAnotherScreen}
+      />
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 20}}
+        style={{flex: 1, backgroundColor: '#F9FAFE'}}>
+        <ViewWrapper
           customStyle={{
-            width: '100%',
-            borderWidth: 0,
-            marginTop: 30,
-            backgroundColor: colors.green,
-          }}
-        />
+            flex: 1,
+            paddingTop: top,
+            backgroundColor: '#F9FAFE',
+            paddingHorizontal: 30,
+          }}>
+          {renderFields()}
+          <ImageUploadButton onCameraIconPress={openCameraOrGallery} />
+          <PrimaryButton
+            title="Submit"
+            titleStyle={{color: '#fff'}}
+            customStyle={{
+              width: '100%',
+              borderWidth: 0,
+              marginTop: 30,
+              backgroundColor: colors.green,
+            }}
+          />
+          <ViewWrapper
+            row
+            center
+            justifyCenter
+            customStyle={{marginVertical: 15}}>
+            <TextWrapper
+              h3
+              align
+              title={'Have an account? '}
+              style={{
+                color: '#000000',
+                fontWeight: '500',
+              }}
+            />
+            <TextWrapper
+              h3
+              align
+              onPress={() => {
+                navigate(screens.LOGIN);
+              }}
+              title={'Sign In'}
+              style={{
+                color: colors.green,
+                fontWeight: '500',
+              }}
+            />
+          </ViewWrapper>
+        </ViewWrapper>
+      </KeyboardAwareScrollView>
+      <CustomModalWrapper
+        avoidKeyboard={true}
+        animationOut="fadeOut"
+        backdropOpacity={0}
+        modalCustomStyle={{margin: 0}}
+        onCloseModal={onCloseModal}
+        isVisible={open}>
         <ViewWrapper
           row
-          center
-          justifyCenter
-          customStyle={{marginVertical: 15}}>
-          <TextWrapper
-            h3
-            align
-            title={'Have an account? '}
-            style={{
-              color: '#000000',
-              fontWeight: '500',
-            }}
-          />
-          <TextWrapper
-            h3
-            align
-            onPress={() => {
-              navigate(screens.LOGIN);
-            }}
-            title={'Sign In'}
-            style={{
-              color: colors.green,
-              fontWeight: '500',
-            }}
-          />
+          evenly
+          customStyle={{
+            marginTop: 'auto',
+            width: '100%',
+            padding: normalize(20),
+            backgroundColor: '#fff',
+            borderTopLeftRadius: normalize(30),
+            borderTopRightRadius: normalize(30),
+            borderTopWidth: 1,
+            borderStartWidth: 1,
+            borderEndWidth: 1,
+            height: 100,
+            borderColor: 'transparent',
+          }}>
+          <TextWrapper h3 title={'Open Camera'} onPress={camera} />
+          <TextWrapper h3 title={'Open Gallery'} onPress={gallery} />
         </ViewWrapper>
-      </ViewWrapper>
-    </KeyboardAwareScrollView>
+      </CustomModalWrapper>
+    </ViewWrapper>
   );
 };

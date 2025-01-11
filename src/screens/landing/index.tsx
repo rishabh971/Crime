@@ -12,6 +12,7 @@ export const LandingScreen = () => {
   const loginNavigation = () => {
     navigate(screens.LOGIN);
   };
+  
   const registrationNavigation = () => {
     navigate(screens.REGISTRATION);
   };

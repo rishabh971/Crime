@@ -5,4 +5,6 @@ export default {
   HOME: 'home',
   BOTTOMSTACK: 'bottom',
   REGISTRATION: 'registration',
+  CAPTUREEVIDENCE: 'capture',
+  NEWCASE: 'newcase'
 };

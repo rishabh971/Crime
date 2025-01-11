@@ -6,6 +6,8 @@ import {LandingScreen} from '../screens/landing';
 import {LoginScreen} from '../screens/login';
 import {RegistrationScreen} from '../screens/registration';
 import BottomStack from './bottomStack';
+import CaptureEvidenceScreen from '../screens/capture';
+import { NewCaseScreen } from '../screens/newCase';
 
 const RootStack = createNativeStackNavigator();
 
@@ -40,6 +42,16 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={screens.BOTTOMSTACK}
         component={BottomStack}
+        options={{navigationBarHidden: true}}
+      />
+      <RootStack.Screen
+        name={screens.CAPTUREEVIDENCE}
+        component={CaptureEvidenceScreen}
+        options={{navigationBarHidden: true}}
+      />
+      <RootStack.Screen
+        name={'newcase'}
+        component={NewCaseScreen}
         options={{navigationBarHidden: true}}
       />
     </RootStack.Navigator>

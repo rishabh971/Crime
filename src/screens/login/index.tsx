@@ -16,6 +16,7 @@ export const LoginScreen = () => {
   const registerNavigation = () => {
     navigate(screens.REGISTRATION);
   };
+
   return (
     <ViewWrapper
       customStyle={{
@@ -39,11 +40,13 @@ export const LoginScreen = () => {
         style={{marginBottom: 15, color: '#8489A3', fontWeight: '500'}}
       />
       <CustomTextInput
+        iconName={images.EMAIL}
+        iconContainerStyle = {{backgroundColor: colors.lightGreen}}
         placeholder={'Enter your email'}
         tstyle={{
           backgroundColor: '#fff',
           paddingVertical: 25,
-          paddingLeft: 20,
+          paddingLeft: 66,
           borderRadius: 10,
           borderColor: colors.green,
           borderWidth: 1,
@@ -62,11 +65,14 @@ export const LoginScreen = () => {
         }}
       />
       <CustomTextInput
+        iconNameStyle={{height: 24, width: 19}}
+        iconContainerStyle = {{backgroundColor: colors.lightGreen}}
         placeholder={'Enter your password'}
+        iconName={images.PASSCODE}
         tstyle={{
           backgroundColor: '#fff',
           paddingVertical: 25,
-          paddingLeft: 20,
+          paddingLeft: 66,
           borderRadius: 10,
           borderColor: colors.green,
           borderWidth: 1,
@@ -76,6 +82,9 @@ export const LoginScreen = () => {
       />
       <TextWrapper
         h3
+        onPress={() => {
+          navigate(screens.CAPTUREEVIDENCE);
+        }}
         title={'Forgot password?'}
         style={{
           alignSelf: 'flex-end',
@@ -96,7 +105,7 @@ export const LoginScreen = () => {
         titleStyle={{color: '#fff'}}
         disable={false}
         onPress={() => {
-          navigate(screens.BOTTOMSTACK)
+          navigate(screens.BOTTOMSTACK);
         }}
       />
       <ViewWrapper row center justifyCenter customStyle={{marginVertical: 15}}>

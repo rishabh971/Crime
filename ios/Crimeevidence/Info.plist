@@ -25,6 +25,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
+		<!-- <key>NSCameraUsageDescription</key>
+	<string>Vedicon will access your device's camera to help you take a photo to use for your profile so other users can identify you when they look you up or interact with you on the app.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Vedicon uses your contacts to help you to invite people to Maxxx so you can send invite to the other users.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Vedicon needs your Microphone permission for video meeting, please allow it</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Vedicon uses your photo library to help you select profile photo so other users can identify you when they look up you up or interact with you on the app.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Enable hands-free interaction with speech recognition. No audio stored for privacy.
+    </string> -->
 	<dict>
 	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
