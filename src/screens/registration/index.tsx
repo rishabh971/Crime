@@ -14,6 +14,9 @@ import CustomModalWrapper from '../../components/customModalWrapper';
 import {normalize} from '../../utils/dimensions';
 import {galleryPick, OpenCamera} from '../../utils/imageHandler';
 import {images} from '../../asset';
+import {useDispatch} from 'react-redux';
+import {ActivityIndicator, Alert, StyleSheet} from 'react-native';
+import {registration} from '../../redux/AuthReducer/action';
 
 export const RegistrationScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -26,9 +29,11 @@ export const RegistrationScreen = () => {
     mobile: '',
     fsl: '',
     emailid: '',
+    password: '',
   });
-
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
+  const [loader, setLoader] = React.useState(false);
   const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
 
   const openCameraOrGallery = () => {
@@ -61,6 +66,37 @@ export const RegistrationScreen = () => {
         },
       );
     } catch (error) {}
+  };
+
+  const registrationApi = () => {
+    setLoader(true);
+    dispatch(
+      registration({
+        name: filedState.name,
+        deptId: filedState.dept,
+        taluk: filedState.taluk,
+        designation: filedState.designation,
+        dobOrAadhaar: filedState.aadhar,
+        mobileNo: filedState.mobile,
+        code: filedState.fsl,
+        email: filedState.emailid,
+        imageUrl: imagePath,
+        password: filedState.password,
+      }),
+    )
+      .unwrap()
+      .then((res: any) => {
+        if (res?.status == 200) {
+          navigate(screens.BOTTOMSTACK);
+        }
+      })
+      .catch((error: any) => {
+        //ShowToast
+        Alert.alert(JSON.stringify(error?.message));
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   const renderItem = (item: {
@@ -137,6 +173,13 @@ export const RegistrationScreen = () => {
               updateState(prev => ({...prev, emailid: txt}));
             },
           },
+          {
+            placeholder: 'Password*',
+            value: filedState.password,
+            onChange: (txt: string) => {
+              updateState(prev => ({...prev, password: txt}));
+            },
+          },
         ].map(renderItem)}
       </React.Fragment>
     );
@@ -147,7 +190,8 @@ export const RegistrationScreen = () => {
   };
 
   return (
-    <ViewWrapper customStyle={{flex: 1, backgroundColor: '#F9FAFE'}}>
+    <ViewWrapper
+      customStyle={{flex: 1, backgroundColor: '#F9FAFE', paddingTop: top}}>
       <CustomHeader
         screenName="Registration"
         onLeftIconPress={goBackToAnotherScreen}
@@ -159,7 +203,6 @@ export const RegistrationScreen = () => {
         <ViewWrapper
           customStyle={{
             flex: 1,
-            paddingTop: top,
             backgroundColor: '#F9FAFE',
             paddingHorizontal: 30,
           }}>
@@ -167,6 +210,8 @@ export const RegistrationScreen = () => {
           <ImageUploadButton onCameraIconPress={openCameraOrGallery} />
           <PrimaryButton
             title="Submit"
+            disable={false}
+            onPress={registrationApi}
             titleStyle={{color: '#fff'}}
             customStyle={{
               width: '100%',
@@ -231,6 +276,14 @@ export const RegistrationScreen = () => {
           <TextWrapper h3 title={'Open Gallery'} onPress={gallery} />
         </ViewWrapper>
       </CustomModalWrapper>
+      {loader && (
+        <ActivityIndicator
+          size={'large'}
+          color={'#00000'}
+          animating={loader}
+          style={{...StyleSheet.absoluteFillObject}}
+        />
+      )}
     </ViewWrapper>
   );
 };

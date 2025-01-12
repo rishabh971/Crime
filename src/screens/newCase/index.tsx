@@ -4,7 +4,7 @@ import React from 'react';
 import CustomTextInput from '../../components/customTextInput';
 import PrimaryButton from '../../components/primaryButton';
 import colors from '../../utils/colors';
-import {Image} from 'react-native';
+import {ActivityIndicator, Image, StyleSheet} from 'react-native';
 import {images} from '../../asset';
 import {TextWrapper} from '../../components/textWrapper';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -12,6 +12,8 @@ import CustomModalWrapper from '../../components/customModalWrapper';
 import {normalize} from '../../utils/dimensions';
 import {OpenCamera, galleryPick} from '../../utils/imageHandler';
 import {CustomHeader} from '../../components/customHeader';
+import {useDispatch} from 'react-redux';
+import {addCase} from '../../redux/addCaseReducer/action';
 
 export const NewCaseScreen = () => {
   const [fieldValues, setFieldValues] = React.useState({
@@ -36,8 +38,10 @@ export const NewCaseScreen = () => {
     crimetype: '',
     remark: '',
   });
+  const dispatch = useDispatch();
   const {top} = useSafeAreaInsets();
   const [open, setOpen] = React.useState(false);
+  const [loader, setLoader] = React.useState(false);
   const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
 
   const openCameraOrGallery = () => {
@@ -70,6 +74,37 @@ export const NewCaseScreen = () => {
         },
       );
     } catch (error) {}
+  };
+
+  const addCaseApi = () => {
+    setLoader(true);
+    dispatch(
+      addCase({
+        date: fieldValues.date,
+        time: fieldValues.time,
+        permanentAdd: fieldValues.address1,
+        tempAdd: fieldValues.address2,
+        state: fieldValues.state,
+        // mobileNo: fieldValues.mobile,
+        city: fieldValues.city,
+        pincode: fieldValues.pincode,
+        crimeType: fieldValues.crimetype,
+        remarksByIO: fieldValues.remark,
+      }),
+    )
+      .unwrap()
+      .then((res: any) => {
+        if (res?.status == 200) {
+          // navigate(screens.BOTTOMSTACK);
+        }
+      })
+      .catch((error: any) => {
+        //ShowToast
+        // Alert.alert(JSON.stringify(error?.message));
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   const onChangeTextHandler = (currentIndex, value) => {
@@ -127,7 +162,7 @@ export const NewCaseScreen = () => {
   return (
     <ViewWrapper
       customStyle={{flex: 1, backgroundColor: '#F9FAFE', paddingTop: top}}>
-      <CustomHeader screenName='New Case' />
+      <CustomHeader screenName="New Case" />
       <KeyboardAwareScrollView>
         <ViewWrapper
           customStyle={{
@@ -163,6 +198,8 @@ export const NewCaseScreen = () => {
           </ViewWrapper>
           <PrimaryButton
             title="Submit"
+            disable={false}
+            onPress={addCaseApi}
             customStyle={{
               backgroundColor: colors.green,
               borderWidth: 0,
@@ -199,6 +236,14 @@ export const NewCaseScreen = () => {
           </ViewWrapper>
         </CustomModalWrapper>
       </KeyboardAwareScrollView>
+      {loader && (
+        <ActivityIndicator
+          size={'large'}
+          color={'#00000'}
+          animating={loader}
+          style={{...StyleSheet.absoluteFillObject}}
+        />
+      )}
     </ViewWrapper>
   );
 };

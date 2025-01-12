@@ -17,28 +17,48 @@ export const LoginScreen = () => {
   const dispatch = useDispatch();
   const {top} = useSafeAreaInsets();
   const [loader, setLoader] = React.useState(false);
+  const [loginDetails, setLoginDetails] = React.useState({
+    email: '',
+    password: '',
+  });
 
   const loginNavigation = () => {
     setLoader(true);
     dispatch(
       emailsignIn({
-        email: 'test121@yopmail.com',
-        password: 'password',
+        email: loginDetails.email,
+        password: loginDetails.password,
       }),
     )
       .unwrap()
-      .then(res => {
+      .then((res: any) => {
         if (res?.status == 200) {
           navigate(screens.BOTTOMSTACK);
         }
       })
-      .catch(error => {
+      .catch((error: any) => {
         //ShowToast
         Alert.alert(JSON.stringify(error?.message));
       })
       .finally(() => {
         setLoader(false);
       });
+  };
+
+  /**
+   *
+   * @param email
+   */
+  const onEmailChange = (email: string) => {
+    setLoginDetails(prev => ({...prev, email: email}));
+  };
+
+  /**
+   *
+   * @param password
+   */
+  const onPasswordChange = (password: string) => {
+    setLoginDetails(prev => ({...prev, password: password}));
   };
 
   return (
@@ -59,17 +79,21 @@ export const LoginScreen = () => {
       />
       <CustomTextInput
         iconName={images.EMAIL}
+        autoCapitalize={'none'}
         iconContainerStyle={{backgroundColor: colors.lightGreen}}
         placeholder={'Enter your email'}
         tstyle={styles.emailContainerStyle}
+        onChangeText={onEmailChange}
       />
       <TextWrapper h3 title={'Password'} style={styles.passwordTextStyle} />
       <CustomTextInput
+        autoCapitalize={'none'}
         iconNameStyle={{height: 24, width: 19}}
-        iconContainerStyle={{backgroundColor: colors.lightGreen}}
+        iconContainerStyle={{backgroundColor: colors.lightGrpen}}
         placeholder={'Enter your password'}
         iconName={images.PASSCODE}
         tstyle={styles.emailContainerStyle}
+        onChangeText={onPasswordChange}
       />
       <TextWrapper
         h3
@@ -117,6 +141,8 @@ export const LoginScreen = () => {
       </ViewWrapper>
       {loader && (
         <ActivityIndicator
+          size={'large'}
+          color = {'#00000'}
           animating={loader}
           style={{...StyleSheet.absoluteFillObject}}
         />

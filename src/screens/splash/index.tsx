@@ -1,25 +1,25 @@
-import {Image, ImageBackground} from 'react-native';
+import React from 'react';
 import {images} from '../../asset';
 import colors from '../../utils/colors';
+import {useSelector} from 'react-redux';
+import screens from '../../utils/screens';
+import {Image, ImageBackground} from 'react-native';
 import {TextWrapper} from '../../components/textWrapper';
 import {ViewWrapper} from '../../components/viewWrapper';
-import React from 'react';
 import {navigate, reset} from '../../utils/navigationService';
-import screens from '../../utils/screens';
-import {useSelector} from 'react-redux';
 
 export const SplashScreen = () => {
-  const {auth} = useSelector(store => {
-    return store;
-  });
+  const {auth} = useSelector(store => store);
 
   React.useEffect(() => {
-    if (auth?.token?.length > 0) {
-      setTimeout(() => reset(screens.BOTTOMSTACK), 1000);
-    } else {
-      setTimeout(() => navigate(screens.LANDING), 1000);
-    }
-  }, [auth?.token]);
+    setTimeout(() => {
+      if (auth?.token?.length > 0) {
+        reset(screens.BOTTOMSTACK);
+      } else {
+        reset(screens.LANDING);
+      }
+    }, 1000);
+  }, []);
 
   return (
     <ImageBackground
