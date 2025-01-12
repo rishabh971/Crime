@@ -15,7 +15,7 @@ const extraReducers = (builder: any) => {
     (state: AuthState, action: PayloadAction<any>) => {
       console.log(state, action)
       setAuthorizationToken(action?.payload?.data?.token);
-      // state.token = action?.payload?.data?.accesstoken;
+      state.token = action?.payload?.data?.token;
       // state.userProfile = {
       //   ...state.userProfile,
       //   ...action?.payload?.data?.userDetails,

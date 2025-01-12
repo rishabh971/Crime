@@ -6,11 +6,20 @@ import {ViewWrapper} from '../../components/viewWrapper';
 import React from 'react';
 import {navigate, reset} from '../../utils/navigationService';
 import screens from '../../utils/screens';
+import {useSelector} from 'react-redux';
 
 export const SplashScreen = () => {
+  const {auth} = useSelector(store => {
+    return store;
+  });
+
   React.useEffect(() => {
-    setTimeout(() => navigate(screens.LANDING), 1000);
-  }, []);
+    if (auth?.token?.length > 0) {
+      setTimeout(() => reset(screens.BOTTOMSTACK), 1000);
+    } else {
+      setTimeout(() => navigate(screens.LANDING), 1000);
+    }
+  }, [auth?.token]);
 
   return (
     <ImageBackground

@@ -1,4 +1,5 @@
 import React from 'react';
+import {styles} from './styes';
 import {images} from '../../asset';
 import {useDispatch} from 'react-redux';
 import colors from '../../utils/colors';
@@ -11,7 +12,6 @@ import PrimaryButton from '../../components/primaryButton';
 import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ActivityIndicator, Alert, Image, StyleSheet} from 'react-native';
-import {styles} from './styes';
 
 export const LoginScreen = () => {
   const dispatch = useDispatch();
@@ -28,7 +28,7 @@ export const LoginScreen = () => {
     )
       .unwrap()
       .then(res => {
-        if (res.status == 200) {
+        if (res?.status == 200) {
           navigate(screens.BOTTOMSTACK);
         }
       })

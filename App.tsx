@@ -4,15 +4,15 @@ import {persistStore} from 'redux-persist';
 import {PersistGate} from 'redux-persist/integration/react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import MainNavigationContainer from './src/router';
-import { store } from './src/redux/store';
+import {persistor, store} from './src/redux/store';
 
 function App() {
   return (
     <SafeAreaProvider>
       <Provider store={store}>
-        {/* <PersistGate persistor={persistor}> */}
-        <MainNavigationContainer />
-        {/* </PersistGate> */}
+        <PersistGate persistor={persistor}>
+          <MainNavigationContainer />
+        </PersistGate>
       </Provider>
     </SafeAreaProvider>
   );
