@@ -1,8 +1,11 @@
 import React from 'react';
+import axios from 'axios';
 import styles from './styles';
 import {images} from '../../asset';
+import Device from '../../utils/device';
 import {ViewWrapper} from '../../components/viewWrapper';
 import {TextWrapper} from '../../components/textWrapper';
+import {ActivityIndicator, StyleSheet} from 'react-native';
 import PrimaryButton from '../../components/primaryButton';
 import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -12,6 +15,7 @@ import CustomModalWrapper from '../../components/customModalWrapper';
 export default function CaptureEvidenceScreen() {
   const {top} = useSafeAreaInsets();
   const [open, setOpen] = React.useState(false);
+  const [loader, setLoader] = React.useState(false);
   const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
 
   const openCameraOrGallery = () => {
@@ -43,7 +47,44 @@ export default function CaptureEvidenceScreen() {
           setOpen(false);
         },
       );
-    } catch (error) {}
+    } catch (error) {
+      setOpen(false);
+    }
+  };
+
+  const uploadImage = () => {
+    setLoader(true);
+    const uploadUrl = 'https://bd14-115-97-207-84.ngrok-free.app/upload-file';
+    const formData = new FormData();
+    formData.append('file', {
+      uri: imagePath?.path,
+      name: 'test' + '.jpg',
+      type: 'image/jpg',
+    });
+    axios({
+      method: 'post',
+      url: uploadUrl,
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        timezone: '0',
+        appVersion: Device?.getVersion(),
+      },
+      data: formData,
+    })
+      .then(response => {
+        const res = response?.data;
+        console.log('response', response);
+        if (res?.statusCode == 200) {
+          setImagePath({path: res?.data});
+        }
+      })
+      .catch(error => {
+        console.log('image error', error);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   return (
@@ -71,7 +112,9 @@ export default function CaptureEvidenceScreen() {
         placeholder={'Evidence Description'}
       />
       <PrimaryButton
+        disable={false}
         title={'Generate QR'}
+        onPress={uploadImage}
         titleStyle={{color: '#fff'}}
         customStyle={styles.generateQRbtn}
       />
@@ -87,6 +130,14 @@ export default function CaptureEvidenceScreen() {
           <TextWrapper h3 title={'Open Gallery'} onPress={gallery} />
         </ViewWrapper>
       </CustomModalWrapper>
+      {loader && (
+        <ActivityIndicator
+          animating={loader}
+          size={'large'}
+          color={'#00000'}
+          style={{...StyleSheet.absoluteFillObject}}
+        />
+      )}
     </ViewWrapper>
   );
 }

@@ -11,7 +11,8 @@ import {emailsignIn} from '../../redux/AuthReducer/action';
 import PrimaryButton from '../../components/primaryButton';
 import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ActivityIndicator, Alert, Image, StyleSheet} from 'react-native';
+import {ActivityIndicator, Image, StyleSheet} from 'react-native';
+import {showErrorToast} from '../../components/toast';
 
 export const LoginScreen = () => {
   const dispatch = useDispatch();
@@ -38,7 +39,7 @@ export const LoginScreen = () => {
       })
       .catch((error: any) => {
         //ShowToast
-        Alert.alert(JSON.stringify(error?.message));
+        showErrorToast(error?.message);
       })
       .finally(() => {
         setLoader(false);
@@ -142,7 +143,7 @@ export const LoginScreen = () => {
       {loader && (
         <ActivityIndicator
           size={'large'}
-          color = {'#00000'}
+          color={'#00000'}
           animating={loader}
           style={{...StyleSheet.absoluteFillObject}}
         />

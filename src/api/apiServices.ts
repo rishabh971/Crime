@@ -9,10 +9,9 @@ import store from '../redux/store';
 // import { showErrorToast, showSuccessToast } from '@maxxx/components/toast';
 // import { base64Credentials } from '@maxxx/utils/commonFunction';
 
-const NG_ROK = 'https://f60b-115-97-207-84.ngrok-free.app';
+const NG_ROK = 'https://bd14-115-97-207-84.ngrok-free.app';
 
 const $http: AxiosInstance = axios.create({
-  baseURL: '',
   baseURL: NG_ROK,
   timeout: 30000,
   headers: {
