@@ -12,7 +12,7 @@ const postApiCall = async (endPoint: string, params: object) => {
   try {
     const response: any = await $http.post(endPoint, params);
     console.log('postApiCall', response);
-    return response.data;
+    return response;
   } catch (error: any) {
     console.log('postApiCall', error);
     throw new Error(error.message || 'Something Went Wrong');

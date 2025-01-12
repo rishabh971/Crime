@@ -1,30 +1,48 @@
 import React from 'react';
-import {Alert, Image} from 'react-native';
 import {images} from '../../asset';
-import CustomTextInput from '../../components/customTextInput';
-import {ViewWrapper} from '../../components/viewWrapper';
+import {useDispatch} from 'react-redux';
 import colors from '../../utils/colors';
-import {TextWrapper} from '../../components/textWrapper';
-import PrimaryButton from '../../components/primaryButton';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {navigate} from '../../utils/navigationService';
 import screens from '../../utils/screens';
+import {navigate} from '../../utils/navigationService';
+import {ViewWrapper} from '../../components/viewWrapper';
+import {TextWrapper} from '../../components/textWrapper';
+import {emailsignIn} from '../../redux/AuthReducer/action';
+import PrimaryButton from '../../components/primaryButton';
+import CustomTextInput from '../../components/customTextInput';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ActivityIndicator, Alert, Image, StyleSheet} from 'react-native';
+import {styles} from './styes';
 
 export const LoginScreen = () => {
-  const {top, bottom} = useSafeAreaInsets();
+  const dispatch = useDispatch();
+  const {top} = useSafeAreaInsets();
+  const [loader, setLoader] = React.useState(false);
 
-  const registerNavigation = () => {
-    navigate(screens.REGISTRATION);
+  const loginNavigation = () => {
+    setLoader(true);
+    dispatch(
+      emailsignIn({
+        email: 'test121@yopmail.com',
+        password: 'password',
+      }),
+    )
+      .unwrap()
+      .then(res => {
+        if (res.status == 200) {
+          navigate(screens.BOTTOMSTACK);
+        }
+      })
+      .catch(error => {
+        //ShowToast
+        Alert.alert(JSON.stringify(error?.message));
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   return (
-    <ViewWrapper
-      customStyle={{
-        flex: 1,
-        paddingTop: top,
-        backgroundColor: '#F9FAFE',
-        paddingHorizontal: 30,
-      }}>
+    <ViewWrapper customStyle={[styles.container, {paddingTop: top}]}>
       <Image
         source={images.LOGO}
         style={{alignSelf: 'center', marginBottom: 45, marginTop: 25}}
@@ -41,44 +59,17 @@ export const LoginScreen = () => {
       />
       <CustomTextInput
         iconName={images.EMAIL}
-        iconContainerStyle = {{backgroundColor: colors.lightGreen}}
+        iconContainerStyle={{backgroundColor: colors.lightGreen}}
         placeholder={'Enter your email'}
-        tstyle={{
-          backgroundColor: '#fff',
-          paddingVertical: 25,
-          paddingLeft: 66,
-          borderRadius: 10,
-          borderColor: colors.green,
-          borderWidth: 1,
-          fontSize: 17,
-          fontWeight: '400',
-        }}
+        tstyle={styles.emailContainerStyle}
       />
-      <TextWrapper
-        h3
-        title={'Password'}
-        style={{
-          marginBottom: 15,
-          marginTop: 30,
-          color: '#8489A3',
-          fontWeight: '500',
-        }}
-      />
+      <TextWrapper h3 title={'Password'} style={styles.passwordTextStyle} />
       <CustomTextInput
         iconNameStyle={{height: 24, width: 19}}
-        iconContainerStyle = {{backgroundColor: colors.lightGreen}}
+        iconContainerStyle={{backgroundColor: colors.lightGreen}}
         placeholder={'Enter your password'}
         iconName={images.PASSCODE}
-        tstyle={{
-          backgroundColor: '#fff',
-          paddingVertical: 25,
-          paddingLeft: 66,
-          borderRadius: 10,
-          borderColor: colors.green,
-          borderWidth: 1,
-          fontSize: 17,
-          fontWeight: '400',
-        }}
+        tstyle={styles.emailContainerStyle}
       />
       <TextWrapper
         h3
@@ -86,13 +77,7 @@ export const LoginScreen = () => {
           navigate(screens.CAPTUREEVIDENCE);
         }}
         title={'Forgot password?'}
-        style={{
-          alignSelf: 'flex-end',
-          marginBottom: 15,
-          marginTop: 30,
-          color: '#8489A3',
-          fontWeight: '500',
-        }}
+        style={styles.passwordTextStyle}
       />
       <PrimaryButton
         title={'Login'}
@@ -105,7 +90,8 @@ export const LoginScreen = () => {
         titleStyle={{color: '#fff'}}
         disable={false}
         onPress={() => {
-          navigate(screens.BOTTOMSTACK);
+          // navigate(screens.BOTTOMSTACK);
+          loginNavigation();
         }}
       />
       <ViewWrapper row center justifyCenter customStyle={{marginVertical: 15}}>
@@ -121,7 +107,7 @@ export const LoginScreen = () => {
         <TextWrapper
           h3
           align
-          onPress={registerNavigation}
+          onPress={() => {}}
           title={'Sign up'}
           style={{
             color: colors.green,
@@ -129,6 +115,12 @@ export const LoginScreen = () => {
           }}
         />
       </ViewWrapper>
+      {loader && (
+        <ActivityIndicator
+          animating={loader}
+          style={{...StyleSheet.absoluteFillObject}}
+        />
+      )}
     </ViewWrapper>
   );
 };

@@ -7,8 +7,10 @@ import PrimaryButton from '../../components/primaryButton';
 import screens from '../../utils/screens';
 import {navigate} from '../../utils/navigationService';
 import styles from './styles';
+import { useDispatch } from 'react-redux';
 
 export const LandingScreen = () => {
+  
   const loginNavigation = () => {
     navigate(screens.LOGIN);
   };

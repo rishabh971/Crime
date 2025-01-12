@@ -1,18 +1,19 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, {AxiosInstance} from 'axios';
 // import Device from './device';
-import { Platform } from 'react-native';
-import { navigationRef } from '../utils/navigationService';
+import {Platform} from 'react-native';
+import {navigationRef} from '../utils/navigationService';
 import screens from '../utils/screens';
 import Device from '../utils/device';
+import store from '../redux/store';
 // import Config from 'react-native-config';
 // import { showErrorToast, showSuccessToast } from '@maxxx/components/toast';
 // import { base64Credentials } from '@maxxx/utils/commonFunction';
 
-// const NG_ROK = 'https://wombat-poetic-hookworm.ngrok-free.app';
+const NG_ROK = 'https://f60b-115-97-207-84.ngrok-free.app';
 
 const $http: AxiosInstance = axios.create({
   baseURL: '',
-  // baseURL: NG_ROK,
+  baseURL: NG_ROK,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -58,17 +59,15 @@ $http.interceptors.response.use(
       error?.message?.includes('Network Error')
     ) {
       const route = navigationRef?.current?.getCurrentRoute()?.name;
-      if (
-        route !== screens.LOGIN &&
-        route !== screens.REGISTRATION
-      ) {
+      if (route !== screens.LOGIN && route !== screens.REGISTRATION) {
         handleApiError(error.message);
       } else {
         if (
           !error?.message?.includes('401') &&
           !error?.message?.includes('498')
-        )
+        ) {
           // showErrorToast(error?.response?.data?.message);
+        }
       }
     } else {
       throw new Error(error?.response?.data?.message || 'Something went wrong');
@@ -92,4 +91,4 @@ const handleApiError = (errorMessage: string) => {
   }
 };
 
-export { $http, handleApiError };
+export {$http, handleApiError};
