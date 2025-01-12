@@ -17,6 +17,7 @@ import {images} from '../../asset';
 import {useDispatch} from 'react-redux';
 import {ActivityIndicator, Alert, StyleSheet} from 'react-native';
 import {registration} from '../../redux/AuthReducer/action';
+import {showErrorToast} from '../../components/toast';
 
 export const RegistrationScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -80,19 +81,22 @@ export const RegistrationScreen = () => {
         mobileNo: filedState.mobile,
         code: filedState.fsl,
         email: filedState.emailid,
-        imageUrl: imagePath,
+        imageUrl:
+          'https://tr.rbxcdn.com/180DAY-9a7bda8a192a498a4ceeee3b14843620/768/432/Image/Webp/noFilter',
         password: filedState.password,
       }),
     )
       .unwrap()
       .then((res: any) => {
         if (res?.status == 200) {
-          navigate(screens.BOTTOMSTACK);
+          showErrorToast(res?.message);
+          setTimeout(() => {
+            navigate(screens.BOTTOMSTACK);
+          }, 1000);
         }
       })
       .catch((error: any) => {
-        //ShowToast
-        Alert.alert(JSON.stringify(error?.message));
+        showErrorToast(error?.message);
       })
       .finally(() => {
         setLoader(false);

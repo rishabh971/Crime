@@ -11,6 +11,7 @@ import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {galleryPick, OpenCamera} from '../../utils/imageHandler';
 import CustomModalWrapper from '../../components/customModalWrapper';
+import {showErrorToast, showSuccessToast} from '../../components/toast';
 
 export default function CaptureEvidenceScreen() {
   const {top} = useSafeAreaInsets();
@@ -76,11 +77,13 @@ export default function CaptureEvidenceScreen() {
         const res = response?.data;
         console.log('response', response);
         if (res?.statusCode == 200) {
+          showSuccessToast(res?.message);
           setImagePath({path: res?.data});
         }
       })
       .catch(error => {
         console.log('image error', error);
+        showErrorToast(error?.message);
       })
       .finally(() => {
         setLoader(false);

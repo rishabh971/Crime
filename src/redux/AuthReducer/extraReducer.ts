@@ -35,8 +35,8 @@ const extraReducers = (builder: any) => {
   builder.addCase(
     registration.fulfilled,
     (state: AuthState, action: PayloadAction<any>) => {
-      setAuthorizationToken(action?.payload?.data?.token);
-      state.token = action?.payload?.data?.token;
+      setAuthorizationToken(action?.payload?.data?.data);
+      state.token = action?.payload?.data?.data;
       state.loading = false;
     },
   );
