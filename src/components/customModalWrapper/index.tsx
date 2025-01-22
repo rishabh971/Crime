@@ -14,7 +14,6 @@ function CustomModalWrapper(props: any) {
   } = props;
 
   const _handleModal = () => {
-    Alert.alert('')
     onCloseModal();
   };
 

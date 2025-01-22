@@ -19,13 +19,13 @@ import {addCase} from '../../redux/addCaseReducer/action';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {showErrorToast, showSuccessToast} from '../../components/toast';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import RNFS from 'react-native-fs';
 import {Alert, Linking} from 'react-native';
 import {galleryPick, OpenCamera} from '../../utils/imageHandler';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {CustomHeader} from '../../components/customHeader';
 import CustomModalWrapper from '../../components/customModalWrapper';
 import Geolocation from '@react-native-community/geolocation';
+import ReactNativeBlobUtil from 'react-native-blob-util';
 
 export const NewCaseScreen = () => {
   const [fieldValues, setFieldValues] = React.useState({
@@ -218,43 +218,58 @@ export const NewCaseScreen = () => {
 
       const file = await RNHTMLtoPDF.convert(options);
       setPdfPath(file.filePath);
-      console.log(file.filePath, 'file.filePath');
-      Alert.alert('PDF Generated', 'Click View to open the PDF.', [
-        {text: 'View', onPress: () => viewPDF(file.filePath)},
-        {text: 'Cancel', style: 'cancel'},
+      // console.log(file.filePath, 'file.filePath');
+      Alert.alert('Download PDF', '', [
+        {text: 'Yes', onPress: () => viewPDF(file.filePath, 'pdf')},
+        {text: 'No', style: 'cancel'},
       ]);
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
   };
 
-  const viewPDF = path => {
-    if (Platform.OS === 'ios') {
-      const fileUrl = `file://${path}`;
-      Linking.canOpenURL(fileUrl)
-        .then(supported => {
-          if (supported) {
-            Linking.openURL(fileUrl);
-          } else {
-            Alert.alert('Error', 'Unable to open the PDF file.');
-          }
-        })
-        .catch(err => console.error('Error opening PDF:', err));
-    } else {
-      RNFS.exists(path)
-        .then(exists => {
-          if (exists) {
-            Alert.alert('PDF Viewer', 'PDF opened successfully.');
-          } else {
-            Alert.alert('Error', 'PDF not found.');
-          }
-        })
-        .catch(err => console.error(err));
-    }
+  const viewPDF = async (link: string, type = 'pdf') => {
+    console.log('linkkkkkk', link);
+    const date = new Date();
+    const file_URL = 'https://CaseDetails.pdf';
+    const {config, fs, ios, android} = ReactNativeBlobUtil;
+    const configOption = Platform.select({
+      ios: {
+        fileCache: true,
+        path: `${fs.dirs.DocumentDir}/${type}${Math.floor(
+          date.getTime() + date.getSeconds() / 2,
+        )}.pdf`,
+        appendExt: type,
+      },
+      android: {
+        fileCache: true,
+        addAndroidDownloads: {
+          useDownloadManager: true,
+          notification: true,
+          path: `${fs.dirs.LegacyDownloadDir}/${Math.floor(
+            date.getTime() + date.getSeconds() / 2,
+          )}/${type}`,
+          description: 'Downloading PDF file',
+        },
+      },
+    });
+    console.log('configOption', configOption);
+    config(configOption)
+      .fetch('GET', file_URL, {})
+      .then(res => {
+        if (Platform.OS === 'ios') {
+          ios.previewDocument(`file://${res.data}`);
+        }
+        if (Platform.OS === 'android') {
+          Alert.alert('File downloaded successfully');
+        }
+      })
+      .catch(e => {
+        Alert.alert('Error in downloading');
+      });
   };
 
   const renderItem = (item, index) => {
-    const isTimeField = index === 1;
     return (
       <ViewWrapper>
         <CustomTextInput
@@ -266,19 +281,8 @@ export const NewCaseScreen = () => {
             borderColor: '#F4F4F4',
             color: !item.editable ? 'grey' : 'black',
           }}
-          // editable={!isTimeField}
           editable={item.editable}
         />
-        {index === 0 && (
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
-            style={{position: 'absolute', right: 20, top: '43%'}}>
-            <Image
-              source={images.CALENDAR}
-              style={{width: 24, height: 24, resizeMode: 'contain'}}
-            />
-          </TouchableOpacity>
-        )}
       </ViewWrapper>
     );
   };
@@ -312,6 +316,16 @@ export const NewCaseScreen = () => {
             paddingHorizontal: 30,
           }}>
           {[
+            {
+              value: fieldValues.longitude,
+              placeholder: 'Longitude',
+              editable: false,
+            },
+            {
+              value: fieldValues.latitude,
+              placeholder: 'Latitude',
+              editable: false,
+            },
             {value: fieldValues.date, placeholder: 'Date', editable: false},
             {value: fieldValues.time, placeholder: 'Time', editable: false},
             {
@@ -340,16 +354,6 @@ export const NewCaseScreen = () => {
               value: fieldValues.remark,
               placeholder: 'Remarks by I.O.*',
               editable: true,
-            },
-            {
-              value: fieldValues.longitude,
-              placeholder: 'Longitude',
-              editable: false,
-            },
-            {
-              value: fieldValues.latitude,
-              placeholder: 'Latitude',
-              editable: false,
             },
           ].map(renderItem)}
           <ViewWrapper row center customStyle={{marginVertical: 20}}>
@@ -384,7 +388,7 @@ export const NewCaseScreen = () => {
         <CustomModalWrapper
           avoidKeyboard={true}
           animationOut="fadeOut"
-          backdropOpacity={0}
+          backdropOpacity={0.1}
           modalCustomStyle={{margin: 0}}
           onCloseModal={onCloseModal}
           isVisible={open}>

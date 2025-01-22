@@ -24,7 +24,7 @@ export const LandingScreen = () => {
       <ViewWrapper>
         <Image source={images.APPLOGO} style={{alignSelf: 'center'}} />
         <PrimaryButton
-          title={'Register'}
+          title={'User Registeration'}
           disable={false}
           customStyle={styles.registerButton}
           titleStyle={styles.registerTitleStyle}
