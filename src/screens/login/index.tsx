@@ -12,7 +12,7 @@ import PrimaryButton from '../../components/primaryButton';
 import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ActivityIndicator, Image, StyleSheet} from 'react-native';
-import {showErrorToast} from '../../components/toast';
+import {showErrorToast, showSuccessToast} from '../../components/toast';
 
 export const LoginScreen = () => {
   const dispatch = useDispatch();
@@ -22,28 +22,35 @@ export const LoginScreen = () => {
     email: '',
     password: '',
   });
+  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
 
   const loginNavigation = () => {
-    setLoader(true);
-    dispatch(
-      emailsignIn({
-        email: loginDetails.email,
-        password: loginDetails.password,
-      }),
-    )
-      .unwrap()
-      .then((res: any) => {
-        if (res?.status == 200) {
-          navigate(screens.BOTTOMSTACK);
-        }
-      })
-      .catch((error: any) => {
-        //ShowToast
-        showErrorToast(error?.message);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
+    navigate(screens.BOTTOMSTACK);
+    // setLoader(true);
+    // dispatch(
+    //   emailsignIn({
+    //     email: loginDetails.email,
+    //     password: loginDetails.password,
+    //   }),
+    // )
+    //   .unwrap()
+    //   .then((res: any) => {
+    //     if (res?.status == 200) {
+    //       navigate(screens.BOTTOMSTACK);
+    //       showSuccessToast(res?.message);
+    //     }
+    //   })
+    //   .catch((error: any) => {
+    //     //ShowToast
+    //     showErrorToast(error?.message);
+    //   })
+    //   .finally(() => {
+    //     setLoader(false);
+    //   });
   };
 
   /**
@@ -88,13 +95,14 @@ export const LoginScreen = () => {
       />
       <TextWrapper h3 title={'Password'} style={styles.passwordTextStyle} />
       <CustomTextInput
-        autoCapitalize={'none'}
-        iconNameStyle={{height: 24, width: 19}}
-        iconContainerStyle={{backgroundColor: colors.lightGrpen}}
-        placeholder={'Enter your password'}
+        autoCapitalize="none"
         iconName={images.PASSCODE}
-        tstyle={styles.emailContainerStyle}
+        placeholder="Enter your password"
+        secureTextEntry={!isPasswordVisible}
         onChangeText={onPasswordChange}
+        rightIconName={isPasswordVisible ? images.EYE : images.EYE}
+        onRightIconPress={togglePasswordVisibility}
+        tstyle={styles.emailContainerStyle}
       />
       <TextWrapper
         h3
@@ -102,22 +110,26 @@ export const LoginScreen = () => {
           navigate(screens.CAPTUREEVIDENCE);
         }}
         title={'Forgot password?'}
-        style={styles.passwordTextStyle}
+        style={{
+          marginBottom: 15,
+          marginTop: 30,
+          color: '#8489A3',
+          fontWeight: '500',
+          alignSelf: 'flex-end'
+        }}
       />
       <PrimaryButton
         title={'Login'}
         customStyle={{
-          backgroundColor: colors.green,
           borderWidth: 0,
           width: '100%',
           marginTop: 30,
         }}
         titleStyle={{color: '#fff'}}
-        disable={false}
-        onPress={() => {
-          // navigate(screens.BOTTOMSTACK);
-          loginNavigation();
-        }}
+        disable={
+          !(loginDetails.email.length > 1 && loginDetails.password.length > 1)
+        }
+        onPress={loginNavigation}
       />
       <ViewWrapper row center justifyCenter customStyle={{marginVertical: 15}}>
         <TextWrapper
@@ -132,7 +144,9 @@ export const LoginScreen = () => {
         <TextWrapper
           h3
           align
-          onPress={() => {}}
+          onPress={() => {
+            navigate(screens.REGISTRATION);
+          }}
           title={'Sign up'}
           style={{
             color: colors.green,

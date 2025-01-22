@@ -1,13 +1,10 @@
 import axios, {AxiosInstance} from 'axios';
-// import Device from './device';
 import {Platform} from 'react-native';
 import {navigationRef} from '../utils/navigationService';
 import screens from '../utils/screens';
 import Device from '../utils/device';
 import store from '../redux/store';
-// import Config from 'react-native-config';
-// import { showErrorToast, showSuccessToast } from '@maxxx/components/toast';
-// import { base64Credentials } from '@maxxx/utils/commonFunction';
+import { showErrorToast, showSuccessToast } from '../components/toast';
 
 const NG_ROK = 'https://bd14-115-97-207-84.ngrok-free.app';
 
@@ -16,14 +13,10 @@ const $http: AxiosInstance = axios.create({
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
-    // basic: `Basic ${base64Credentials}`,
     timeZone: new Date().getTimezoneOffset(),
-    // basic: `Basic aXNwb3J0c3N0ZzpNYXh4X3N0Z0AxMjM=`,
     appVersion: Device?.getVersion(),
   },
 });
-
-// console.log('device', Device?.getVersion())
 
 const devicedetail = {
   platform: Platform.OS === 'android' ? 0 : 1,
@@ -65,7 +58,7 @@ $http.interceptors.response.use(
           !error?.message?.includes('401') &&
           !error?.message?.includes('498')
         ) {
-          // showErrorToast(error?.response?.data?.message);
+          showErrorToast(error?.response?.data?.message);
         }
       }
     } else {
@@ -84,7 +77,7 @@ const handleApiError = (errorMessage: string) => {
     // navigationRef?.current?.navigate(SCREENS.SUBSCRIPTION);
   } else if (errorMessage?.includes('Network Error')) {
     // navigationRef?.current?.navigate(SCREENS.LOGIN);
-    // showSuccessToast(errorMessage); //TO DO
+    showSuccessToast(errorMessage); //TO DO
   } else {
     // navigationRef?.current?.navigate(SCREENS.SessionExpiry, errorMessage);
   }

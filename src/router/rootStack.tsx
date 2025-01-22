@@ -14,7 +14,7 @@ const RootStack = createNativeStackNavigator();
 const RootNavigator = () => {
   return (
     <RootStack.Navigator
-      initialRouteName={screens.SPLASH}
+      initialRouteName={screens.BOTTOMSTACK}
       screenOptions={{
         headerShown: false,
         gestureEnabled: false,
@@ -50,7 +50,7 @@ const RootNavigator = () => {
         options={{navigationBarHidden: true}}
       />
       <RootStack.Screen
-        name={'newcase'}
+        name={screens.NEWCASE}
         component={NewCaseScreen}
         options={{navigationBarHidden: true}}
       />

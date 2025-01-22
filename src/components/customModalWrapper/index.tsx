@@ -1,7 +1,8 @@
 import React, {ReactNode} from 'react';
+import { Alert } from 'react-native';
 import Modal from 'react-native-modal';
 
-function CustomModalWrapper(props: {}) {
+function CustomModalWrapper(props: any) {
   const {
     isVisible,
     modalCustomStyle,
@@ -13,6 +14,7 @@ function CustomModalWrapper(props: {}) {
   } = props;
 
   const _handleModal = () => {
+    Alert.alert('')
     onCloseModal();
   };
 

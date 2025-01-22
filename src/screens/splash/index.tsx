@@ -6,7 +6,7 @@ import screens from '../../utils/screens';
 import {Image, ImageBackground} from 'react-native';
 import {TextWrapper} from '../../components/textWrapper';
 import {ViewWrapper} from '../../components/viewWrapper';
-import {navigate, reset} from '../../utils/navigationService';
+import {reset} from '../../utils/navigationService';
 
 export const SplashScreen = () => {
   const {auth} = useSelector(store => store);

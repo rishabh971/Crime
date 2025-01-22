@@ -15,7 +15,8 @@ export default StyleSheet.create({
     borderRadius: 151 / 2,
     alignSelf: 'center',
     marginVertical: 38,
-    borderColor: '#22B7FA'
+    borderColor: '#22B7FA',
+    backgroundColor: '#fff'
   },
   generateQRbtn: {
     marginTop: 100,

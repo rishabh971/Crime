@@ -21,6 +21,7 @@ export default StyleSheet.create({
     height: 50,
     marginVertical: 30,
     borderColor: '#F3F3F3',
+    backgroundColor: '#fff'
   },
   loginButtonStyle: {
     color: colors.green,

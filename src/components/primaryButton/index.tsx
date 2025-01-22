@@ -1,6 +1,7 @@
 import {Image, ImageProps, TextStyle, ViewStyle} from 'react-native';
 import {TextWrapper} from '../textWrapper';
 import {ViewWrapper} from '../viewWrapper';
+import colors from '../../utils/colors';
 
 const PrimaryButton = ({
   onPress,
@@ -31,6 +32,7 @@ const PrimaryButton = ({
           borderRadius: 50,
           height: 75,
           overflow: 'hidden',
+          backgroundColor: disable ? 'grey' : colors.green,
         },
         customStyle,
       ]}>

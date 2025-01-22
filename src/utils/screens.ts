@@ -6,5 +6,6 @@ export default {
   BOTTOMSTACK: 'bottom',
   REGISTRATION: 'registration',
   CAPTUREEVIDENCE: 'capture',
-  NEWCASE: 'newcase'
+  NEWCASE: 'newcase',
+  PROFILE: 'profile',
 };

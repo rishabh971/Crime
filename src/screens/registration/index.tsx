@@ -214,14 +214,23 @@ export const RegistrationScreen = () => {
           <ImageUploadButton onCameraIconPress={openCameraOrGallery} />
           <PrimaryButton
             title="Submit"
-            disable={false}
+            disable={
+              filedState.aadhar.length < 1 &&
+              filedState.name.length < 1 &&
+              filedState.taluk.length < 1 &&
+              filedState.designation.length < 1 &&
+              filedState.mobile.length < 1 &&
+              filedState.fsl.length < 1 &&
+              filedState.emailid.length < 1 &&
+              filedState.password.length < 1
+            }
             onPress={registrationApi}
             titleStyle={{color: '#fff'}}
             customStyle={{
               width: '100%',
               borderWidth: 0,
               marginTop: 30,
-              backgroundColor: colors.green,
+              // backgroundColor: colors.green,
             }}
           />
           <ViewWrapper

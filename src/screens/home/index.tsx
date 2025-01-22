@@ -4,6 +4,8 @@ import {images} from '../../asset';
 import {TextWrapper} from '../../components/textWrapper';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styles from './styles';
+import { navigate } from '../../utils/navigationService';
+import screens from '../../utils/screens';
 
 export const HomeScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -18,7 +20,7 @@ export const HomeScreen = () => {
         />
         <Image source={images.SEARCH} style={{resizeMode: 'contain'}} />
       </ViewWrapper>
-      <ViewWrapper center row between customStyle={styles.newCaseContainer}>
+      <ViewWrapper center row between customStyle={styles.newCaseContainer} onPress={() => {navigate(screens.NEWCASE)}} isDisabled={false}>
         <TextWrapper h3 title={'Add New Case'} style={styles.newCaseText} />
         <Image source={images.NEWCASE} style={{resizeMode: 'contain'}} />
       </ViewWrapper>

@@ -1,19 +1,31 @@
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ViewWrapper} from '../../components/viewWrapper';
-import React from 'react';
+import React, {useEffect} from 'react';
 import CustomTextInput from '../../components/customTextInput';
 import PrimaryButton from '../../components/primaryButton';
 import colors from '../../utils/colors';
-import {ActivityIndicator, Image, StyleSheet} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import {images} from '../../asset';
-import {TextWrapper} from '../../components/textWrapper';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import CustomModalWrapper from '../../components/customModalWrapper';
-import {normalize} from '../../utils/dimensions';
-import {OpenCamera, galleryPick} from '../../utils/imageHandler';
-import {CustomHeader} from '../../components/customHeader';
 import {useDispatch} from 'react-redux';
+import {normalize} from '../../utils/dimensions';
+import {TextWrapper} from '../../components/textWrapper';
 import {addCase} from '../../redux/addCaseReducer/action';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {showErrorToast, showSuccessToast} from '../../components/toast';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import RNFS from 'react-native-fs';
+import {Alert, Linking} from 'react-native';
+import {galleryPick, OpenCamera} from '../../utils/imageHandler';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {CustomHeader} from '../../components/customHeader';
+import CustomModalWrapper from '../../components/customModalWrapper';
+import Geolocation from '@react-native-community/geolocation';
 
 export const NewCaseScreen = () => {
   const [fieldValues, setFieldValues] = React.useState({
@@ -26,6 +38,8 @@ export const NewCaseScreen = () => {
     pincode: '',
     crimetype: '',
     remark: '',
+    latitude: '',
+    longitude: '',
   });
   const [error, setError] = React.useState({
     date: '',
@@ -37,12 +51,40 @@ export const NewCaseScreen = () => {
     pincode: '',
     crimetype: '',
     remark: '',
+    latitude: '',
+    longitude: '',
   });
   const dispatch = useDispatch();
   const {top} = useSafeAreaInsets();
   const [open, setOpen] = React.useState(false);
   const [loader, setLoader] = React.useState(false);
+  const [pdfPath, setPdfPath] = React.useState('');
   const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+  const [showTimePicker, setShowTimePicker] = React.useState(false);
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const formattedDate = new Intl.DateTimeFormat('en-US', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(selectedDate);
+      setFieldValues(prev => ({...prev, date: formattedDate}));
+    }
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    setShowTimePicker(false);
+    if (selectedTime) {
+      const hours = String(selectedTime.getHours()).padStart(2, '0');
+      const minutes = String(selectedTime.getMinutes()).padStart(2, '0');
+      // const seconds = String(selectedTime.getSeconds()).padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+      setFieldValues(prev => ({...prev, time: formattedTime}));
+    }
+  };
 
   const openCameraOrGallery = () => {
     setOpen(prev => !prev);
@@ -73,11 +115,14 @@ export const NewCaseScreen = () => {
           setOpen(false);
         },
       );
-    } catch (error) {}
+    } catch (error) {
+      setOpen(false);
+    }
   };
 
   const addCaseApi = () => {
     setLoader(true);
+    generatePDF();
     dispatch(
       addCase({
         date: fieldValues.date,
@@ -85,7 +130,6 @@ export const NewCaseScreen = () => {
         permanentAdd: fieldValues.address1,
         tempAdd: fieldValues.address2,
         state: fieldValues.state,
-        // mobileNo: fieldValues.mobile,
         city: fieldValues.city,
         pincode: fieldValues.pincode,
         crimeType: fieldValues.crimetype,
@@ -95,69 +139,167 @@ export const NewCaseScreen = () => {
       .unwrap()
       .then((res: any) => {
         if (res?.status == 200) {
+          showSuccessToast(res?.message);
           // navigate(screens.BOTTOMSTACK);
         }
       })
       .catch((error: any) => {
-        //ShowToast
-        // Alert.alert(JSON.stringify(error?.message));
+        showErrorToast(error?.message);
       })
       .finally(() => {
         setLoader(false);
       });
   };
 
-  const onChangeTextHandler = (currentIndex, value) => {
-    console.log('currentIndex', currentIndex);
-    switch (currentIndex) {
-      case 0:
-        setFieldValues(prev => ({...prev, date: value}));
-        break;
-      case 1:
-        setFieldValues(prev => ({...prev, time: value}));
-        break;
-      case 2:
-        setFieldValues(prev => ({...prev, address1: value}));
-        break;
-      case 3:
-        setFieldValues(prev => ({...prev, address2: value}));
-        break;
-      case 4:
-        setFieldValues(prev => ({...prev, state: value}));
-        break;
-      case 5:
-        setFieldValues(prev => ({...prev, city: value}));
-        break;
-      case 6:
-        setFieldValues(prev => ({...prev, pincode: value}));
-        break;
-      case 7:
-        setFieldValues(prev => ({...prev, crimetype: value}));
-        break;
-      default:
-        setFieldValues(prev => ({...prev, remark: value}));
-        break;
+  const onChangeTextHandler = (index, value) => {
+    const keys = [
+      'date',
+      'time',
+      'address1',
+      'address2',
+      'state',
+      'city',
+      'pincode',
+      'crimetype',
+      'remark',
+      'latitude',
+      'longitude',
+    ];
+    setFieldValues(prev => ({...prev, [keys[index]]: value}));
+  };
+
+  useEffect(() => {
+    const getISTTime = () => {
+      const currentDate = new Date();
+      const utcOffset = currentDate.getTimezoneOffset() * 60000;
+      const istOffset = 5.5 * 60 * 60000;
+      const istTime = new Date(currentDate.getTime() + utcOffset + istOffset);
+      const hours = String(istTime.getHours()).padStart(2, '0');
+      const minutes = String(istTime.getMinutes()).padStart(2, '0');
+      const seconds = String(istTime.getSeconds()).padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
+    };
+    const getISTDate = () => {
+      const currentDate = new Date();
+      const utcOffset = currentDate.getTimezoneOffset() * 60000;
+      const istOffset = 5.5 * 60 * 60000;
+      const istTime = new Date(currentDate.getTime() + utcOffset + istOffset);
+      const month = String(istTime.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const date = String(istTime.getDate()).padStart(2, '0');
+      const year = istTime.getFullYear();
+      return `${month}/${date}/${year}`;
+    };
+
+    setFieldValues(prev => ({...prev, time: getISTTime(), date: getISTDate()}));
+  }, []);
+
+  const generatePDF = async () => {
+    try {
+      const htmlContent = `
+        <h1>Case Details</h1>
+        <p><strong>Date:</strong> ${fieldValues.date}</p>
+        <p><strong>Time:</strong> ${fieldValues.time}</p>
+        <p><strong>Address 1:</strong> ${fieldValues.address1}</p>
+        <p><strong>Address 2:</strong> ${fieldValues.address2}</p>
+        <p><strong>State:</strong> ${fieldValues.state}</p>
+        <p><strong>City:</strong> ${fieldValues.city}</p>
+        <p><strong>Pincode:</strong> ${fieldValues.pincode}</p>
+        <p><strong>Crime Type:</strong> ${fieldValues.crimetype}</p>
+        <p><strong>Remark:</strong> ${fieldValues.remark}</p>
+        <p><strong>Longitude:</strong> ${fieldValues.longitude}</p>
+        <p><strong>Latitude:</strong> ${fieldValues.latitude}</p>
+      `;
+
+      const options = {
+        html: htmlContent,
+        fileName: 'CaseDetails',
+        directory: 'Documents',
+      };
+
+      const file = await RNHTMLtoPDF.convert(options);
+      setPdfPath(file.filePath);
+      console.log(file.filePath, 'file.filePath');
+      Alert.alert('PDF Generated', 'Click View to open the PDF.', [
+        {text: 'View', onPress: () => viewPDF(file.filePath)},
+        {text: 'Cancel', style: 'cancel'},
+      ]);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
+  const viewPDF = path => {
+    if (Platform.OS === 'ios') {
+      const fileUrl = `file://${path}`;
+      Linking.canOpenURL(fileUrl)
+        .then(supported => {
+          if (supported) {
+            Linking.openURL(fileUrl);
+          } else {
+            Alert.alert('Error', 'Unable to open the PDF file.');
+          }
+        })
+        .catch(err => console.error('Error opening PDF:', err));
+    } else {
+      RNFS.exists(path)
+        .then(exists => {
+          if (exists) {
+            Alert.alert('PDF Viewer', 'PDF opened successfully.');
+          } else {
+            Alert.alert('Error', 'PDF not found.');
+          }
+        })
+        .catch(err => console.error(err));
     }
   };
 
   const renderItem = (item, index) => {
+    const isTimeField = index === 1;
     return (
       <ViewWrapper>
         <CustomTextInput
-          value={item.value}
+          value={item.value.toString()}
           onChangeText={text => onChangeTextHandler(index, text)}
           placeholder={item.placeholder}
-          tstyle={{marginTop: 10, borderColor: '#F4F4F4'}}
+          tstyle={{
+            marginTop: 10,
+            borderColor: '#F4F4F4',
+            color: !item.editable ? 'grey' : 'black',
+          }}
+          // editable={!isTimeField}
+          editable={item.editable}
         />
-        {index == 0 && (
-          <ViewWrapper
-            customStyle={{position: 'absolute', right: 20, top: '43%'}}>
-            <Image source={images.NEWCASE} />
-          </ViewWrapper>
+        {index === 0 && (
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={{position: 'absolute', right: 20, top: '43%'}}>
+            <Image
+              source={images.CALENDAR}
+              style={{width: 24, height: 24, resizeMode: 'contain'}}
+            />
+          </TouchableOpacity>
         )}
       </ViewWrapper>
     );
   };
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const coords = position?.coords;
+        console.log('coords?.latitude', coords?.latitude);
+        setFieldValues((prev: any) => ({
+          ...prev,
+          latitude: coords?.latitude,
+          longitude: coords?.longitude,
+        }));
+      },
+      error => {
+        console.log('error', error);
+      },
+      {},
+    );
+  }, []);
 
   return (
     <ViewWrapper
@@ -170,15 +312,45 @@ export const NewCaseScreen = () => {
             paddingHorizontal: 30,
           }}>
           {[
-            {value: fieldValues.date, placeholder: 'Date'},
-            {value: fieldValues.time, placeholder: 'Time'},
-            {value: fieldValues.address1, placeholder: 'Address 1*'},
-            {value: fieldValues.address2, placeholder: 'Address 2*'},
-            {value: fieldValues.state, placeholder: 'State*'},
-            {value: fieldValues.city, placeholder: 'City*'},
-            {value: fieldValues.pincode, placeholder: 'Pincode*'},
-            {value: fieldValues.crimetype, placeholder: 'Crime Type*'},
-            {value: fieldValues.remark, placeholder: 'Remarks by I.O.*'},
+            {value: fieldValues.date, placeholder: 'Date', editable: false},
+            {value: fieldValues.time, placeholder: 'Time', editable: false},
+            {
+              value: fieldValues.address1,
+              placeholder: 'Address 1*',
+              editable: true,
+            },
+            {
+              value: fieldValues.address2,
+              placeholder: 'Address 2*',
+              editable: true,
+            },
+            {value: fieldValues.state, placeholder: 'State*', editable: true},
+            {value: fieldValues.city, placeholder: 'City*', editable: true},
+            {
+              value: fieldValues.pincode,
+              placeholder: 'Pincode*',
+              editable: true,
+            },
+            {
+              value: fieldValues.crimetype,
+              placeholder: 'Crime Type*',
+              editable: true,
+            },
+            {
+              value: fieldValues.remark,
+              placeholder: 'Remarks by I.O.*',
+              editable: true,
+            },
+            {
+              value: fieldValues.longitude,
+              placeholder: 'Longitude',
+              editable: false,
+            },
+            {
+              value: fieldValues.latitude,
+              placeholder: 'Latitude',
+              editable: false,
+            },
           ].map(renderItem)}
           <ViewWrapper row center customStyle={{marginVertical: 20}}>
             <ViewWrapper
@@ -196,6 +368,7 @@ export const NewCaseScreen = () => {
               style={{fontWeight: '400', color: '#8489A3', marginLeft: 20}}
             />
           </ViewWrapper>
+
           <PrimaryButton
             title="Submit"
             disable={false}
@@ -242,6 +415,14 @@ export const NewCaseScreen = () => {
           color={'#00000'}
           animating={loader}
           style={{...StyleSheet.absoluteFillObject}}
+        />
+      )}
+      {showDatePicker && (
+        <DateTimePicker
+          mode="date"
+          value={new Date()}
+          onChange={handleDateChange}
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
         />
       )}
     </ViewWrapper>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextInput, StyleSheet, Image} from 'react-native';
+import {TextInput, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {ViewWrapper} from '../viewWrapper';
 import colors from '../../utils/colors';
 
@@ -12,6 +12,9 @@ const CustomTextInput = ({
   tstyle,
   iconNameStyle,
   iconContainerStyle,
+  rightIconName,
+  rightIconContainerStyle,
+  onRightIconPress,
   ...props
 }) => {
   return (
@@ -30,6 +33,13 @@ const CustomTextInput = ({
         placeholderTextColor="#aaa"
         {...props}
       />
+       {rightIconName && (
+        <TouchableOpacity
+          onPress={onRightIconPress}
+          style={[styles.rightIcon, rightIconContainerStyle]}>
+          <Image source={rightIconName} style={[iconNameStyle]} />
+        </TouchableOpacity>
+      )}
     </ViewWrapper>
   );
 };
@@ -53,6 +63,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 46,
     width: 46,
+  },
+  rightIcon:{
+    position: 'absolute',
+    top: 28,
+    right: 10,
+    height: 30,
+    width: 30,
   },
   textInput: {
     backgroundColor: '#fff',
