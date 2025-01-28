@@ -33,7 +33,7 @@ const CustomTextInput = ({
         placeholderTextColor="#aaa"
         {...props}
       />
-       {rightIconName && (
+      {rightIconName && (
         <TouchableOpacity
           onPress={onRightIconPress}
           style={[styles.rightIcon, rightIconContainerStyle]}>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     height: 46,
     width: 46,
   },
-  rightIcon:{
+  rightIcon: {
     position: 'absolute',
     top: 28,
     right: 10,

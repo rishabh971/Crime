@@ -26,6 +26,10 @@ import {CustomHeader} from '../../components/customHeader';
 import CustomModalWrapper from '../../components/customModalWrapper';
 import Geolocation from '@react-native-community/geolocation';
 import ReactNativeBlobUtil from 'react-native-blob-util';
+import {navigate} from '../../utils/navigationService';
+import screens from '../../utils/screens';
+import axios from 'axios';
+import Device from '../../utils/device';
 
 export const NewCaseScreen = () => {
   const [fieldValues, setFieldValues] = React.useState({
@@ -140,7 +144,7 @@ export const NewCaseScreen = () => {
       .then((res: any) => {
         if (res?.status == 200) {
           showSuccessToast(res?.message);
-          // navigate(screens.BOTTOMSTACK);
+          generatePDF();
         }
       })
       .catch((error: any) => {
@@ -150,22 +154,8 @@ export const NewCaseScreen = () => {
         setLoader(false);
       });
   };
-
-  const onChangeTextHandler = (index, value) => {
-    const keys = [
-      'date',
-      'time',
-      'address1',
-      'address2',
-      'state',
-      'city',
-      'pincode',
-      'crimetype',
-      'remark',
-      'latitude',
-      'longitude',
-    ];
-    setFieldValues(prev => ({...prev, [keys[index]]: value}));
+  const onChangeTextHandler = (field, value) => {
+    setFieldValues(prev => ({...prev, [field]: value}));
   };
 
   useEffect(() => {
@@ -215,24 +205,25 @@ export const NewCaseScreen = () => {
         fileName: 'CaseDetails',
         directory: 'Documents',
       };
-
       const file = await RNHTMLtoPDF.convert(options);
-      setPdfPath(file.filePath);
-      // console.log(file.filePath, 'file.filePath');
-      Alert.alert('Download PDF', '', [
-        {text: 'Yes', onPress: () => viewPDF(file.filePath, 'pdf')},
-        {text: 'No', style: 'cancel'},
-      ]);
+      Alert.alert('');
+      uploadPdf(file.filePath);
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
   };
 
-  const viewPDF = async (link: string, type = 'pdf') => {
-    console.log('linkkkkkk', link);
-    const date = new Date();
-    const file_URL = 'https://CaseDetails.pdf';
+  // const viewPDF = async (link: string, type = 'pdf') => {
+  //   console.log('linkkkkkk', link);
+  //   const date = new Date();
+  //   const file_URL = 'https://CaseDetails.pdf';
+  //   console.log('link', link)
+  //   uploadPdf(link)
+  // };
+
+  const downloadPdf = (link: string, type = 'pdf') => {
     const {config, fs, ios, android} = ReactNativeBlobUtil;
+    const date = new Date();
     const configOption = Platform.select({
       ios: {
         fileCache: true,
@@ -253,28 +244,125 @@ export const NewCaseScreen = () => {
         },
       },
     });
-    console.log('configOption', configOption);
     config(configOption)
-      .fetch('GET', file_URL, {})
-      .then(res => {
-        if (Platform.OS === 'ios') {
-          ios.previewDocument(`file://${res.data}`);
-        }
-        if (Platform.OS === 'android') {
-          Alert.alert('File downloaded successfully');
-        }
-      })
+      .fetch('GET', link, {})
+      .then(res => {})
       .catch(e => {
         Alert.alert('Error in downloading');
       });
   };
 
+  const uploadPdf = pdfPath => {
+    setLoader(true);
+    const uploadUrl = 'https://4f67-27-4-172-141.ngrok-free.app/upload-file';
+    const formData = new FormData();
+    formData.append('file', {
+      uri: pdfPath,
+      name: 'test' + '.pdf',
+      type: 'pdf',
+    });
+    axios({
+      method: 'post',
+      url: uploadUrl,
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        timezone: '0',
+        appVersion: Device?.getVersion(),
+      },
+      data: formData,
+    })
+      .then(response => {
+        const res = response?.data;
+        if (res?.statusCode == 200) {
+          console.log('response', response);
+          showSuccessToast(res?.message);
+          downloadPdf(response?.data, 'pdf');
+        }
+      })
+      .catch(error => {
+        showErrorToast(error?.message);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
+  };
+
+  const fieldsConfig = [
+    {
+      field: 'longitude',
+      value: fieldValues.longitude,
+      placeholder: 'Longitude',
+      editable: false,
+    },
+    {
+      field: 'latitude',
+      value: fieldValues.latitude,
+      placeholder: 'Latitude',
+      editable: false,
+    },
+    {
+      field: 'date',
+      value: fieldValues.date,
+      placeholder: 'Date',
+      editable: false,
+    },
+    {
+      field: 'time',
+      value: fieldValues.time,
+      placeholder: 'Time',
+      editable: false,
+    },
+    {
+      field: 'address1',
+      value: fieldValues.address1,
+      placeholder: 'Address 1*',
+      editable: true,
+    },
+    {
+      field: 'address2',
+      value: fieldValues.address2,
+      placeholder: 'Address 2*',
+      editable: true,
+    },
+    {
+      field: 'state',
+      value: fieldValues.state,
+      placeholder: 'State*',
+      editable: true,
+    },
+    {
+      field: 'city',
+      value: fieldValues.city,
+      placeholder: 'City*',
+      editable: true,
+    },
+    {
+      field: 'pincode',
+      value: fieldValues.pincode,
+      placeholder: 'Pincode*',
+      editable: true,
+    },
+    {
+      field: 'crimetype',
+      value: fieldValues.crimetype,
+      placeholder: 'Crime Type*',
+      editable: true,
+    },
+    {
+      field: 'remark',
+      value: fieldValues.remark,
+      placeholder: 'Remarks by I.O.*',
+      editable: true,
+    },
+  ];
+
   const renderItem = (item, index) => {
     return (
-      <ViewWrapper>
+      <ViewWrapper key={index}>
         <CustomTextInput
-          value={item.value.toString()}
-          onChangeText={text => onChangeTextHandler(index, text)}
+          value={item?.value?.toString()}
+          onChangeText={text => onChangeTextHandler(item.field, text)}
           placeholder={item.placeholder}
           tstyle={{
             marginTop: 10,
@@ -315,51 +403,12 @@ export const NewCaseScreen = () => {
             flex: 1,
             paddingHorizontal: 30,
           }}>
-          {[
-            {
-              value: fieldValues.longitude,
-              placeholder: 'Longitude',
-              editable: false,
-            },
-            {
-              value: fieldValues.latitude,
-              placeholder: 'Latitude',
-              editable: false,
-            },
-            {value: fieldValues.date, placeholder: 'Date', editable: false},
-            {value: fieldValues.time, placeholder: 'Time', editable: false},
-            {
-              value: fieldValues.address1,
-              placeholder: 'Address 1*',
-              editable: true,
-            },
-            {
-              value: fieldValues.address2,
-              placeholder: 'Address 2*',
-              editable: true,
-            },
-            {value: fieldValues.state, placeholder: 'State*', editable: true},
-            {value: fieldValues.city, placeholder: 'City*', editable: true},
-            {
-              value: fieldValues.pincode,
-              placeholder: 'Pincode*',
-              editable: true,
-            },
-            {
-              value: fieldValues.crimetype,
-              placeholder: 'Crime Type*',
-              editable: true,
-            },
-            {
-              value: fieldValues.remark,
-              placeholder: 'Remarks by I.O.*',
-              editable: true,
-            },
-          ].map(renderItem)}
+          {fieldsConfig.map((item, index) => renderItem(item, index))}
           <ViewWrapper row center customStyle={{marginVertical: 20}}>
             <ViewWrapper
               isDisabled={false}
-              onPress={openCameraOrGallery}
+              // onPress={openCameraOrGallery}
+              onPress={() => navigate(screens.CAPTUREEVIDENCE)}
               customStyle={{width: 40, height: 40}}>
               <Image
                 source={images.CAMERA}

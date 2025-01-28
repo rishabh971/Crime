@@ -15,7 +15,7 @@ const RootStack = createNativeStackNavigator();
 const RootNavigator = () => {
   return (
     <RootStack.Navigator
-      initialRouteName={screens.BOTTOMSTACK}
+      initialRouteName={screens.SPLASH}
       screenOptions={{
         headerShown: false,
         gestureEnabled: false,

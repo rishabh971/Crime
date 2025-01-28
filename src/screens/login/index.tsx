@@ -29,28 +29,26 @@ export const LoginScreen = () => {
   };
 
   const loginNavigation = () => {
-    navigate(screens.BOTTOMSTACK);
-    // setLoader(true);
-    // dispatch(
-    //   emailsignIn({
-    //     email: loginDetails.email,
-    //     password: loginDetails.password,
-    //   }),
-    // )
-    //   .unwrap()
-    //   .then((res: any) => {
-    //     if (res?.status == 200) {
-    //       navigate(screens.BOTTOMSTACK);
-    //       showSuccessToast(res?.message);
-    //     }
-    //   })
-    //   .catch((error: any) => {
-    //     //ShowToast
-    //     showErrorToast(error?.message);
-    //   })
-    //   .finally(() => {
-    //     setLoader(false);
-    //   });
+    setLoader(true);
+    dispatch(
+      emailsignIn({
+        email: loginDetails.email,
+        password: loginDetails.password,
+      }),
+    )
+      .unwrap()
+      .then((res: any) => {
+        if (res?.status == 200) {
+          navigate(screens.BOTTOMSTACK);
+          showSuccessToast(res?.message);
+        }
+      })
+      .catch((error: any) => {
+        showErrorToast(error?.message);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   /**

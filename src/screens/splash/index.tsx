@@ -7,6 +7,7 @@ import {Image, ImageBackground} from 'react-native';
 import {TextWrapper} from '../../components/textWrapper';
 import {ViewWrapper} from '../../components/viewWrapper';
 import {reset} from '../../utils/navigationService';
+import {$http} from '../../api/apiServices';
 
 export const SplashScreen = () => {
   const {auth} = useSelector(store => store);
@@ -14,6 +15,7 @@ export const SplashScreen = () => {
   React.useEffect(() => {
     setTimeout(() => {
       if (auth?.token?.length > 0) {
+        $http.defaults.headers.Authorization = `Bearer ${auth?.token}`;
         reset(screens.BOTTOMSTACK);
       } else {
         reset(screens.LANDING);
