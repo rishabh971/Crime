@@ -8,4 +8,5 @@ export default {
   CAPTUREEVIDENCE: 'capture',
   NEWCASE: 'newcase',
   PROFILE: 'profile',
+  RECENTCASE: 'recentCase',
 };

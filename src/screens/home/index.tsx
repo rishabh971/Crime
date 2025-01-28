@@ -12,7 +12,7 @@ export const HomeScreen = () => {
   return (
     <ViewWrapper center customStyle={[styles.container, {paddingTop: top}]}>
       <Image source={images.LOGO} style={{alignSelf: 'center'}} />
-      <ViewWrapper row center between customStyle={styles.mainContainer}>
+      <ViewWrapper row center between customStyle={styles.mainContainer} onPress={() => {navigate(screens.RECENTCASE)}} isDisabled={false}>
         <TextWrapper
           h3
           title={'View Recent Case'}
