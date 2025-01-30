@@ -13,3 +13,16 @@ export const addCase: any = createAsyncThunk(
     }
   },
 );
+
+export const getNewCase: any = createAsyncThunk(
+  'getNewCase/getNewCase',
+  async (params: any) => {
+    try {
+      const result = await postApiCall('/add-case', params);
+      return result;
+    } catch (error: any) {
+      console.log(error);
+      throw new Error(error?.message);
+    }
+  },
+);

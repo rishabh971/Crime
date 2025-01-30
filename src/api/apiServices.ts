@@ -4,9 +4,9 @@ import {navigationRef} from '../utils/navigationService';
 import screens from '../utils/screens';
 import Device from '../utils/device';
 import store from '../redux/store';
-import {showErrorToast, showSuccessToast} from '../components/toast';
+import { showErrorToast, showSuccessToast } from '../components/toast';
 
-const NG_ROK = 'https://4f67-27-4-172-141.ngrok-free.app';
+const NG_ROK = 'https://bd14-115-97-207-84.ngrok-free.app';
 
 const $http: AxiosInstance = axios.create({
   baseURL: NG_ROK,
@@ -23,7 +23,6 @@ const devicedetail = {
 };
 
 $http.interceptors.request.use(async (config: any) => {
-  console.log('config', config);
   if (config.headers) {
     const getState = store?.getState();
     if (getState) {
@@ -43,30 +42,30 @@ $http.interceptors.response.use(
   config => config,
   (error: any) => {
     console.log('errorvfdverbeb te', error);
-    // if (
-    //   error?.message?.includes('403') ||
-    //   error?.message?.includes('401') || //Session expire
-    //   error?.message?.includes('498') ||
-    //   error?.message?.includes('402') ||
-    //   error?.message?.includes('503') ||
-    //   error?.message?.includes('Network Error')
-    // ) {
-    //   const route = navigationRef?.current?.getCurrentRoute()?.name;
-    //   if (route !== screens.LOGIN && route !== screens.REGISTRATION) {
-    //     handleApiError(error.message);
-    //   } else {
-    //     if (
-    //       !error?.message?.includes('401') &&
-    //       !error?.message?.includes('498')
-    //     ) {
-    //       showErrorToast(error?.response?.data?.message);
-    //     }
-    //   }
-    // } else {
-    //   throw new Error(error?.response?.data?.message || 'Something went wrong');
-    // }
+    if (
+      error?.message?.includes('403') ||
+      error?.message?.includes('401') || //Session expire
+      error?.message?.includes('498') ||
+      error?.message?.includes('402') ||
+      error?.message?.includes('503') ||
+      error?.message?.includes('Network Error')
+    ) {
+      const route = navigationRef?.current?.getCurrentRoute()?.name;
+      if (route !== screens.LOGIN && route !== screens.REGISTRATION) {
+        handleApiError(error.message);
+      } else {
+        if (
+          !error?.message?.includes('401') &&
+          !error?.message?.includes('498')
+        ) {
+          showErrorToast(error?.response?.data?.message);
+        }
+      }
+    } else {
+      throw new Error(error?.response?.data?.message || 'Something went wrong');
+    }
 
-    // throw new Error(error?.response?.data?.message);
+    throw new Error(error?.response?.data?.message);
   },
 );
 

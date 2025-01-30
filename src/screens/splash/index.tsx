@@ -7,7 +7,7 @@ import {Image, ImageBackground} from 'react-native';
 import {TextWrapper} from '../../components/textWrapper';
 import {ViewWrapper} from '../../components/viewWrapper';
 import {reset} from '../../utils/navigationService';
-import {$http} from '../../api/apiServices';
+import { $http } from '../../api/apiServices';
 
 export const SplashScreen = () => {
   const {auth} = useSelector(store => store);

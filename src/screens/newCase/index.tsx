@@ -30,18 +30,20 @@ import {navigate} from '../../utils/navigationService';
 import screens from '../../utils/screens';
 import axios from 'axios';
 import Device from '../../utils/device';
+import {useRoute} from '@react-navigation/native';
 
 export const NewCaseScreen = () => {
+  const route = useRoute()?.params;
   const [fieldValues, setFieldValues] = React.useState({
     date: '',
     time: '',
-    address1: '',
-    address2: '',
-    state: '',
-    city: '',
-    pincode: '',
-    crimetype: '',
-    remark: '',
+    address1: route?.item?.address1 || '',
+    address2: route?.item?.address2 || '',
+    state: route?.item?.state || '',
+    city: route?.item?.city || '',
+    pincode: route?.item?.pincode || '',
+    crimetype: route?.item?.crimeType || '',
+    remark: route?.item?.remark || '',
     latitude: '',
     longitude: '',
   });
@@ -66,6 +68,11 @@ export const NewCaseScreen = () => {
   const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
   const [showDatePicker, setShowDatePicker] = React.useState(false);
   const [showTimePicker, setShowTimePicker] = React.useState(false);
+
+  useEffect(() => {
+    // route?.from === '0' && Alert.alert('');
+    //(coming from screen view case detail) && (apiHit for recentCase) && (setFieldValues())
+  }, []);
 
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -125,34 +132,34 @@ export const NewCaseScreen = () => {
   };
 
   const addCaseApi = () => {
-    setLoader(true);
-    generatePDF();
-    dispatch(
-      addCase({
-        date: fieldValues.date,
-        time: fieldValues.time,
-        permanentAdd: fieldValues.address1,
-        tempAdd: fieldValues.address2,
-        state: fieldValues.state,
-        city: fieldValues.city,
-        pincode: fieldValues.pincode,
-        crimeType: fieldValues.crimetype,
-        remarksByIO: fieldValues.remark,
-      }),
-    )
-      .unwrap()
-      .then((res: any) => {
-        if (res?.status == 200) {
-          showSuccessToast(res?.message);
-          generatePDF();
-        }
-      })
-      .catch((error: any) => {
-        showErrorToast(error?.message);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
+    // setLoader(true);
+    downloadPdf('', 'pdf');
+    // dispatch(
+    //   addCase({
+    //     date: fieldValues.date,
+    //     time: fieldValues.time,
+    //     permanentAdd: fieldValues.address1,
+    //     tempAdd: fieldValues.address2,
+    //     state: fieldValues.state,
+    //     city: fieldValues.city,
+    //     pincode: fieldValues.pincode,
+    //     crimeType: fieldValues.crimetype,
+    //     remarksByIO: fieldValues.remark,
+    //   }),
+    // )
+    //   .unwrap()
+    //   .then((res: any) => {
+    //     if (res?.status == 200) {
+    //       showSuccessToast(res?.message);
+    //       // generatePDF();
+    //     }
+    //   })
+    //   .catch((error: any) => {
+    //     showErrorToast(error?.message);
+    //   })
+    //   .finally(() => {
+    //     setLoader(false);
+    //   });
   };
   const onChangeTextHandler = (field, value) => {
     setFieldValues(prev => ({...prev, [field]: value}));
@@ -206,24 +213,23 @@ export const NewCaseScreen = () => {
         directory: 'Documents',
       };
       const file = await RNHTMLtoPDF.convert(options);
-      Alert.alert('');
       uploadPdf(file.filePath);
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
   };
 
-  // const viewPDF = async (link: string, type = 'pdf') => {
-  //   console.log('linkkkkkk', link);
-  //   const date = new Date();
-  //   const file_URL = 'https://CaseDetails.pdf';
-  //   console.log('link', link)
-  //   uploadPdf(link)
-  // };
-
-  const downloadPdf = (link: string, type = 'pdf') => {
+  const downloadPdf = (links: string, type = 'pdf') => {
+    const link =
+      'https://vedicon.in.objectstorage.pappayacloud.com/image/fc2df70c-aadd-438b-883b-f4bf1f39f612.pdf';
     const {config, fs, ios, android} = ReactNativeBlobUtil;
     const date = new Date();
+    // console.log(
+    //   'error in downloading the pdf',
+    //   `${fs.dirs.DocumentDir}/${type}${Math.floor(
+    //     date.getTime() + date.getSeconds() / 2,
+    //   )}.pdf`,
+    // );
     const configOption = Platform.select({
       ios: {
         fileCache: true,
@@ -248,7 +254,8 @@ export const NewCaseScreen = () => {
       .fetch('GET', link, {})
       .then(res => {})
       .catch(e => {
-        Alert.alert('Error in downloading');
+        console.log('errro in the download', e);
+        Alert.alert(JSON.stringify(e));
       });
   };
 
@@ -273,11 +280,12 @@ export const NewCaseScreen = () => {
       data: formData,
     })
       .then(response => {
+        Alert.alert('def');
         const res = response?.data;
         if (res?.statusCode == 200) {
           console.log('response', response);
           showSuccessToast(res?.message);
-          downloadPdf(response?.data, 'pdf');
+          // downloadPdf(response?.data, 'pdf');
         }
       })
       .catch(error => {
@@ -317,43 +325,43 @@ export const NewCaseScreen = () => {
       field: 'address1',
       value: fieldValues.address1,
       placeholder: 'Address 1*',
-      editable: true,
+      editable: !(route?.item?.address1?.length > 0) && true,
     },
     {
       field: 'address2',
       value: fieldValues.address2,
       placeholder: 'Address 2*',
-      editable: true,
+      editable: !(route?.item?.address2?.length > 0) && true,
     },
     {
       field: 'state',
       value: fieldValues.state,
       placeholder: 'State*',
-      editable: true,
+      editable: !(route?.item?.state?.length > 0) && true,
     },
     {
       field: 'city',
       value: fieldValues.city,
       placeholder: 'City*',
-      editable: true,
+      editable: !(route?.item?.city?.length > 0) && true,
     },
     {
       field: 'pincode',
       value: fieldValues.pincode,
       placeholder: 'Pincode*',
-      editable: true,
+      editable: !(route?.item?.pincode?.length > 0) && true,
     },
     {
       field: 'crimetype',
       value: fieldValues.crimetype,
       placeholder: 'Crime Type*',
-      editable: true,
+      editable: !(route?.item?.crimetype?.length > 0) && true,
     },
     {
       field: 'remark',
       value: fieldValues.remark,
       placeholder: 'Remarks by I.O.*',
-      editable: true,
+      editable: !(route?.item?.remarks?.length > 0) && true,
     },
   ];
 

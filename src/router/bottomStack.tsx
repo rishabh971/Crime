@@ -5,6 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import CaptureEvidenceScreen from '../screens/capture';
 import {NewCaseScreen} from '../screens/newCase';
 import { images } from '../asset';
+import { RecentCase } from '../screens/recentCase';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,8 +22,8 @@ export default function BottomStack() {
         }}
       />
       <Tab.Screen
-        name={screens.CAPTUREEVIDENCE}
-        component={CaptureEvidenceScreen}
+        name={screens.RECENTCASE}
+        component={RecentCase}
         options={{
           tabBarIcon: ({focused}) => (
             <Image source={focused ? images.SEARCH_ACTIVE: images.SEARCH_ICON} />

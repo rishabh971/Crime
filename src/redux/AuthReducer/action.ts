@@ -8,7 +8,7 @@ export const emailsignIn: any = createAsyncThunk(
       const result = await postApiCall('/login', params);
       return result;
     } catch (error: any) {
-      console.log('error insidelogin', error);
+      console.log(error);
       throw new Error(error?.message);
     }
   },
@@ -17,7 +17,6 @@ export const emailsignIn: any = createAsyncThunk(
 export const registration: any = createAsyncThunk(
   'auth/signUp',
   async (params: any) => {
-    console.log('', params);
     try {
       const result = await postApiCall('/signup', params);
       return result;

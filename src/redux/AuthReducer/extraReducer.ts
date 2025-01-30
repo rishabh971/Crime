@@ -2,7 +2,6 @@ import {AuthState} from './authSlice';
 import {PayloadAction} from '@reduxjs/toolkit';
 import {emailsignIn, registration} from './action';
 import {setAuthorizationToken} from '../../utils/common';
-import {$http} from '../../api/apiServices';
 
 const extraReducers = (builder: any) => {
   builder.addCase(
@@ -37,11 +36,6 @@ const extraReducers = (builder: any) => {
     registration.fulfilled,
     (state: AuthState, action: PayloadAction<any>) => {
       setAuthorizationToken(action?.payload?.data?.data);
-      // const setAuthorizationToken = (token: string) => {
-      //   console.log('token in the setAuthorizationToken', token);
-      $http.defaults.headers.Authorization = `Bearer ${action?.payload?.data?.data}`;
-
-      // };
       state.token = action?.payload?.data?.data;
       state.loading = false;
     },
