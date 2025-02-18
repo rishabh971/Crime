@@ -17,14 +17,14 @@ import {images} from '../../asset';
 import {useDispatch} from 'react-redux';
 import {ActivityIndicator, Alert, StyleSheet} from 'react-native';
 import {registration} from '../../redux/AuthReducer/action';
-import {showErrorToast} from '../../components/toast';
+import {showErrorToast, showSuccessToast} from '../../components/toast';
 
 export const RegistrationScreen = () => {
   const {top} = useSafeAreaInsets();
   const [filedState, updateState] = React.useState({
     name: '',
     dept: '',
-    taluk: '',
+    departmentAdd: '',
     designation: '',
     aadhar: '',
     mobile: '',
@@ -75,7 +75,7 @@ export const RegistrationScreen = () => {
       registration({
         name: filedState.name,
         deptId: filedState.dept,
-        taluk: filedState.taluk,
+        taluk: filedState.departmentAdd,
         designation: filedState.designation,
         dobOrAadhaar: filedState.aadhar,
         mobileNo: filedState.mobile,
@@ -88,8 +88,9 @@ export const RegistrationScreen = () => {
     )
       .unwrap()
       .then((res: any) => {
+        !res?.status && showErrorToast('Given informations already exits.');
         if (res?.status == 200) {
-          showErrorToast(res?.message);
+          showSuccessToast(res?.message);
           setTimeout(() => {
             navigate(screens.BOTTOMSTACK);
           }, 1000);
@@ -108,13 +109,15 @@ export const RegistrationScreen = () => {
     value: string | number;
     onChange: Function;
   }) => (
-    <CustomTextInput
-      value={item.value}
-      autoCorrect={false}
-      onChangeText={item.onChange}
-      placeholder={item?.placeholder}
-      tstyle={{borderWidth: 0, marginTop: 10}}
-    />
+    <ViewWrapper customStyle={{marginTop: 10}}>
+      <TextWrapper h3 title={item?.placeholder} style={{marginBottom: 10}} />
+      <CustomTextInput
+        value={item.value}
+        autoCorrect={false}
+        onChangeText={item.onChange}
+        tstyle={{borderWidth: 0}}
+      />
+    </ViewWrapper>
   );
 
   const renderFields = () => {
@@ -136,10 +139,10 @@ export const RegistrationScreen = () => {
             },
           },
           {
-            placeholder: 'Taluk*',
-            value: filedState.taluk,
+            placeholder: 'Department Address*',
+            value: filedState.departmentAdd,
             onChange: (txt: string) => {
-              updateState(prev => ({...prev, taluk: txt}));
+              updateState(prev => ({...prev, departmentAdd: txt}));
             },
           },
           {
@@ -217,7 +220,7 @@ export const RegistrationScreen = () => {
             disable={
               filedState.aadhar.length < 1 &&
               filedState.name.length < 1 &&
-              filedState.taluk.length < 1 &&
+              filedState.departmentAdd.length < 1 &&
               filedState.designation.length < 1 &&
               filedState.mobile.length < 1 &&
               filedState.fsl.length < 1 &&

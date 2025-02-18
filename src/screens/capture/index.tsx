@@ -11,13 +11,15 @@ import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {galleryPick, OpenCamera} from '../../utils/imageHandler';
 import CustomModalWrapper from '../../components/customModalWrapper';
-import { showErrorToast, showSuccessToast } from '../../components/toast';
+import {showErrorToast, showSuccessToast} from '../../components/toast';
+import {useSelector} from 'react-redux';
 
 export default function CaptureEvidenceScreen() {
   const {top} = useSafeAreaInsets();
   const [open, setOpen] = React.useState(false);
   const [loader, setLoader] = React.useState(false);
   const [imagePath, setImagePath] = React.useState({path: images.CAMERA});
+  const {token} = useSelector(store => store?.auth);
 
   const openCameraOrGallery = () => {
     setOpen(prev => !prev);
@@ -55,8 +57,9 @@ export default function CaptureEvidenceScreen() {
 
   const uploadImage = () => {
     setLoader(true);
-    const uploadUrl = 'https://bd14-115-97-207-84.ngrok-free.app/upload-file';
+    const uploadUrl = 'https://api.vedicon.in/upload-file';
     const formData = new FormData();
+    console.log('formData', formData);
     formData.append('file', {
       uri: imagePath?.path,
       name: 'test' + '.jpg',
@@ -70,6 +73,7 @@ export default function CaptureEvidenceScreen() {
         'Content-Type': 'multipart/form-data',
         timezone: '0',
         appVersion: Device?.getVersion(),
+        Authorization: `Bearer ${token}`
       },
       data: formData,
     })
@@ -118,7 +122,7 @@ export default function CaptureEvidenceScreen() {
       />
       <PrimaryButton
         disable={false}
-        title={'Generate QR'}
+        title={'Save Evidence'}
         onPress={uploadImage}
         titleStyle={{color: '#fff'}}
         customStyle={styles.generateQRbtn}

@@ -9,4 +9,5 @@ export default {
   NEWCASE: 'newcase',
   PROFILE: 'profile',
   RECENTCASE: 'recentCase',
+  RECENTCASEDETAILS: 'recentCaseDetails',
 };

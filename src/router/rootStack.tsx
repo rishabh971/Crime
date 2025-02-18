@@ -9,6 +9,7 @@ import BottomStack from './bottomStack';
 import CaptureEvidenceScreen from '../screens/capture';
 import { NewCaseScreen } from '../screens/newCase';
 import { RecentCase } from '../screens/recentCase';
+import { RecentCaseDetails } from '../screens/recentCaseDetails';
 
 const RootStack = createNativeStackNavigator();
 
@@ -58,6 +59,11 @@ const RootNavigator = () => {
        <RootStack.Screen
         name={screens.RECENTCASE}
         component={RecentCase}
+        options={{navigationBarHidden: true}}
+      />
+      <RootStack.Screen
+        name={screens.RECENTCASEDETAILS}
+        component={RecentCaseDetails}
         options={{navigationBarHidden: true}}
       />
     </RootStack.Navigator>

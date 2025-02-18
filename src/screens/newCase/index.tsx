@@ -132,35 +132,34 @@ export const NewCaseScreen = () => {
   };
 
   const addCaseApi = () => {
-    // setLoader(true);
-    downloadPdf('', 'pdf');
-    // dispatch(
-    //   addCase({
-    //     date: fieldValues.date,
-    //     time: fieldValues.time,
-    //     permanentAdd: fieldValues.address1,
-    //     tempAdd: fieldValues.address2,
-    //     state: fieldValues.state,
-    //     city: fieldValues.city,
-    //     pincode: fieldValues.pincode,
-    //     crimeType: fieldValues.crimetype,
-    //     remarksByIO: fieldValues.remark,
-    //   }),
-    // )
-    //   .unwrap()
-    //   .then((res: any) => {
-    //     if (res?.status == 200) {
-    //       showSuccessToast(res?.message);
-    //       // generatePDF();
-    //     }
-    //   })
-    //   .catch((error: any) => {
-    //     showErrorToast(error?.message);
-    //   })
-    //   .finally(() => {
-    //     setLoader(false);
-    //   });
+    setLoader(true);
+    dispatch(
+      addCase({
+        date: fieldValues.date,
+        time: fieldValues.time,
+        permanentAdd: fieldValues.address1,
+        tempAdd: fieldValues.address2,
+        state: fieldValues.state,
+        city: fieldValues.city,
+        pincode: fieldValues.pincode,
+        crimeType: fieldValues.crimetype,
+        remarksByIO: fieldValues.remark,
+      }),
+    )
+      .unwrap()
+      .then((res: any) => {
+        if (res?.status == 200) {
+          showSuccessToast(res?.message);
+        }
+      })
+      .catch((error: any) => {
+        showErrorToast(error?.message);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
+
   const onChangeTextHandler = (field, value) => {
     setFieldValues(prev => ({...prev, [field]: value}));
   };
@@ -350,6 +349,7 @@ export const NewCaseScreen = () => {
       value: fieldValues.pincode,
       placeholder: 'Pincode*',
       editable: !(route?.item?.pincode?.length > 0) && true,
+      number: true,
     },
     {
       field: 'crimetype',
@@ -367,17 +367,18 @@ export const NewCaseScreen = () => {
 
   const renderItem = (item, index) => {
     return (
-      <ViewWrapper key={index}>
+      <ViewWrapper key={index} customStyle={{marginTop: 10}}>
+        <TextWrapper h3 title={item?.placeholder} />
         <CustomTextInput
           value={item?.value?.toString()}
           onChangeText={text => onChangeTextHandler(item.field, text)}
-          placeholder={item.placeholder}
           tstyle={{
             marginTop: 10,
             borderColor: '#F4F4F4',
             color: !item.editable ? 'grey' : 'black',
           }}
           editable={item.editable}
+          // keyboardType={item?.number ? 'numeric' : 'alphabet'}
         />
       </ViewWrapper>
     );

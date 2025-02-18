@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import {postApiCall} from '../../api/apiCommonActions';
+import {getApiCall, postApiCall} from '../../api/apiCommonActions';
 
 export const addCase: any = createAsyncThunk(
   'addcase/add-case',
@@ -15,10 +15,10 @@ export const addCase: any = createAsyncThunk(
 );
 
 export const getNewCase: any = createAsyncThunk(
-  'getNewCase/getNewCase',
-  async (params: any) => {
+  'getNewCase/get-all-case',
+  async (params) => {
     try {
-      const result = await postApiCall('/add-case', params);
+      const result = await getApiCall(`/get-all-case${params}`);
       return result;
     } catch (error: any) {
       console.log(error);

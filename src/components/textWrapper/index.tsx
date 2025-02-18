@@ -45,7 +45,7 @@ export const TextWrapper: React.FC<TextComponentProps> = (props: Props) => {
     h7 && { fontSize: normalize(12) },
     h8 && { fontSize: normalize(10) },
     h9 && { fontSize: normalize(9) },
-    bold && { fontFamily: FONTS.BOLD },
+    // bold && { fontFamily: FONTS.BOLD },
     italic && { fontStyle: 'italic' },
     black && { color: 'black' },
     align && { textAlign: 'center' },

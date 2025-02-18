@@ -1,88 +1,79 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, FlatList, TextInput, TouchableOpacity} from 'react-native';
 import styles from './styles';
 import {CustomHeader} from '../../components/customHeader';
 import {goBack, navigate} from '../../utils/navigationService';
 import screens from '../../utils/screens';
-
-const caseData = [
-  {
-    id: '1',
-    caseNo: 'C12345',
-    crimeType: 'Robbery',
-    dateTime: '20-10-2024 14:30',
-    address1: 'Downtown Street',
-    address2: 'address2',
-    remarks: 'Remarks in the field'
-  },
-  {
-    id: '2',
-    caseNo: 'B13465',
-    crimeType: 'Burglary',
-    dateTime: '10-06-2024 09:15',
-    location: 'Maple Avenue',
-    address2: 'address2',
-    remarks: 'Remarks in the field'
-  },
-  {
-    id: '3',
-    caseNo: 'A21348',
-    crimeType: 'Assault',
-    dateTime: '12-08-2024 18:45',
-    location: 'Elm Street',
-    address2: 'address2',
-    remarks: 'Remarks in the field'
-  },
-  {
-    id: '4',
-    caseNo: 'C62189',
-    crimeType: 'Robbery',
-    dateTime: '22-01-2025 16:00',
-    location: 'Bento Cafe',
-    address2: 'address2',
-    remarks: 'Remarks in the field'
-  },
-  {
-    id: '5',
-    caseNo: 'B43981',
-    crimeType: 'Fraud',
-    dateTime: '19-03-2024 11:00',
-    location: 'Pine Road',
-    address2: 'address2',
-    remarks: 'Remarks in the field'
-  },
-];
+import axios from 'axios';
+import Device from '../../utils/device';
+import {showErrorToast, showSuccessToast} from '../../components/toast';
 
 export const RecentCase = () => {
+  const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(caseData);
+  const [filteredData, setFilteredData] = useState([]);
+
+  const getRecentCases = () => {
+    axios({
+      method: 'get',
+      url: 'https://api.vedicon.in/get-all-case?page=1&limit=100',
+      headers: {
+        'Content-Type': 'application/json',
+        timeZone: new Date().getTimezoneOffset(),
+        appVersion: Device?.getVersion(),
+      },
+      timeout: 30000,
+    })
+      .then(response => {
+        const res = response?.data;
+        console.log('res.data', res);
+        if (res?.statusCode == 200) {
+          showSuccessToast(res?.message);
+          setData(res?.data);
+          setFilteredData(res?.data);
+        }
+      })
+      .catch(error => {
+        showErrorToast(error?.message);
+      })
+      .finally(() => {});
+  };
+
+  useEffect(() => {
+    getRecentCases();
+  }, []);
 
   const handleSearch = text => {
     setSearchQuery(text);
-    if (text.trim() === '') {
-      setFilteredData(caseData);
-    } else {
-      const filtered = caseData.filter(
-        item =>
-          item.caseNo.toLowerCase().includes(text.toLowerCase()) ||
-          item.crimeType.toLowerCase().includes(text.toLowerCase()) ||
-          item.location.toLowerCase().includes(text.toLowerCase()) ||
-          item.dateTime.toLowerCase().includes(text.toLowerCase()),
-      );
-      setFilteredData(filtered);
+
+    if (!text) {
+      setFilteredData(data); // Reset list if search is empty
+      return;
     }
+
+    const filtered = data.filter(item => {
+      return (
+        (item?.caseNo?.toLowerCase() || '').includes(text.toLowerCase()) ||
+        (item?.crimeType?.toLowerCase() || '').includes(text.toLowerCase()) ||
+        (item?.city?.toLowerCase() || '').includes(text.toLowerCase()) ||
+        (item?.pincode?.toLowerCase() || '').includes(text.toLowerCase())
+      );
+    });
+
+    console.log('Filtered Cases:', filtered); // Debugging
+    setFilteredData(filtered);
   };
 
   const renderCaseItem = ({item}) => (
     <TouchableOpacity
-      onPress={() => {
-        navigate(screens.NEWCASE, {from: '0', item: item});
-      }}
-      style={styles.card}>
-      <Text style={styles.caseNo}>Case No: {item?.caseNo}</Text>
-      <Text style={styles.crimeType}>Crime Type: {item?.crimeType}</Text>
-      <Text style={styles.dateTime}>Date & Time: {item?.dateTime}</Text>
-      <Text style={styles.location}>Location: {item?.location}</Text>
+      style={styles.card}
+      onPress={() => navigate(screens.RECENTCASEDETAILS, {item})}>
+      <Text style={styles.caseNo}>Case ID: {item.caseNo}</Text>
+      <Text style={styles.crimeType}>Crime Type: {item.crimeType}</Text>
+      <Text style={styles.dateTime}>Date: {item.date}</Text>
+      <Text style={styles.dateTime}>Time: {item.time}</Text>
+      <Text style={styles.location}>City: {item?.city}</Text>
+      <Text style={styles.location}>Pincode: {item?.pincode}</Text>
     </TouchableOpacity>
   );
 
@@ -101,7 +92,7 @@ export const RecentCase = () => {
       <FlatList
         data={filteredData}
         renderItem={renderCaseItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
         ListEmptyComponent={
           <Text style={styles.noResultsText}>No cases found</Text>
         }

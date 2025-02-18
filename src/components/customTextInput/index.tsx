@@ -15,6 +15,7 @@ const CustomTextInput = ({
   rightIconName,
   rightIconContainerStyle,
   onRightIconPress,
+  keyboardType,
   ...props
 }) => {
   return (
@@ -31,6 +32,7 @@ const CustomTextInput = ({
         style={[styles.textInput, tstyle]}
         placeholder={placeholder}
         placeholderTextColor="#aaa"
+        keyboardType={keyboardType}
         {...props}
       />
        {rightIconName && (
@@ -80,6 +82,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 17,
     fontWeight: '400',
+    color: '#000'
   },
 });
 

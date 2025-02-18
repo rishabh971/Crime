@@ -9,12 +9,13 @@ import {Keyboard} from 'react-native';
  */
 
 const postApiCall = async (endPoint: string, params: object) => {
+  console.log()
   try {
     const response: any = await $http.post(endPoint, params);
     console.log('postApiCall', response);
     return response;
   } catch (error: any) {
-    console.log('postApiCall', error);
+    console.log('postApiCall error', error);
     throw new Error(error.message || 'Something Went Wrong');
   }
 };

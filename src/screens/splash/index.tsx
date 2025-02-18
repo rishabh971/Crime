@@ -20,7 +20,7 @@ export const SplashScreen = () => {
       } else {
         reset(screens.LANDING);
       }
-    }, 1000);
+    }, 2000);
   }, []);
 
   return (

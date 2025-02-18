@@ -11,7 +11,7 @@ import {emailsignIn} from '../../redux/AuthReducer/action';
 import PrimaryButton from '../../components/primaryButton';
 import CustomTextInput from '../../components/customTextInput';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ActivityIndicator, Image, StyleSheet} from 'react-native';
+import {ActivityIndicator, Alert, Image, StyleSheet} from 'react-native';
 import {showErrorToast, showSuccessToast} from '../../components/toast';
 
 export const LoginScreen = () => {
@@ -29,28 +29,26 @@ export const LoginScreen = () => {
   };
 
   const loginNavigation = () => {
-    navigate(screens.BOTTOMSTACK);
-    // setLoader(true);
-    // dispatch(
-    //   emailsignIn({
-    //     email: loginDetails.email,
-    //     password: loginDetails.password,
-    //   }),
-    // )
-    //   .unwrap()
-    //   .then((res: any) => {
-    //     if (res?.status == 200) {
-    //       navigate(screens.BOTTOMSTACK);
-    //       showSuccessToast(res?.message);
-    //     }
-    //   })
-    //   .catch((error: any) => {
-    //     //ShowToast
-    //     showErrorToast(error?.message);
-    //   })
-    //   .finally(() => {
-    //     setLoader(false);
-    //   });
+    setLoader(true);
+    dispatch(
+      emailsignIn({
+        email: loginDetails.email,
+        password: loginDetails.password,
+      }),
+    )
+      .unwrap()
+      .then((res: any) => {
+        if (res?.status == 200) {
+          navigate(screens.BOTTOMSTACK);
+          showSuccessToast(res?.message);
+        }
+      })
+      .catch((error: any) => {
+        showErrorToast(error?.message);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   /**
@@ -115,7 +113,7 @@ export const LoginScreen = () => {
           marginTop: 30,
           color: '#8489A3',
           fontWeight: '500',
-          alignSelf: 'flex-end'
+          alignSelf: 'flex-end',
         }}
       />
       <PrimaryButton
